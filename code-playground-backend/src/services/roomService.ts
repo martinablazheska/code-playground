@@ -3,35 +3,47 @@ import { rooms, users, roomParticipants } from "../db/schema";
 import { v4 as uuidv4 } from "uuid";
 import { eq } from "drizzle-orm/expressions";
 
+interface User {
+  id: string;
+  name: string;
+}
+
+interface Room {
+  roomId: string;
+  owner: User;
+  participants: User[];
+}
+
 export class RoomService {
-  async createRoom(ownerName: string) {
-    const userId = uuidv4();
+  async createRoom(ownerName: string): Promise<Room> {
+    const ownerId = uuidv4();
     const roomId = uuidv4();
 
     await db.transaction(async tx => {
-      // Create user
       await tx.insert(users).values({
-        id: userId,
+        id: ownerId,
         name: ownerName,
       });
 
-      // Create room
       await tx.insert(rooms).values({
         id: roomId,
-        ownerId: userId,
+        ownerId: ownerId,
       });
 
-      // Add owner as participant
       await tx.insert(roomParticipants).values({
         roomId: roomId,
-        userId: userId,
+        userId: ownerId,
       });
     });
 
-    return { roomId, ownerId: userId };
+    return {
+      roomId,
+      owner: { id: ownerId, name: ownerName },
+      participants: [{ id: ownerId, name: ownerName }],
+    };
   }
 
-  async joinRoom(roomId: string, userName: string) {
+  async joinRoom(roomId: string, userName: string): Promise<Room> {
     const roomResult = await db
       .select({
         roomId: rooms.id,
@@ -51,25 +63,31 @@ export class RoomService {
     const userId = uuidv4();
 
     await db.transaction(async tx => {
-      // Create new user
       await tx.insert(users).values({
         id: userId,
         name: userName,
       });
 
-      // Add user as room participant
       await tx.insert(roomParticipants).values({
         roomId: roomId,
         userId: userId,
       });
     });
 
+    const participants = await db
+      .select({
+        id: users.id,
+        name: users.name,
+      })
+      .from(roomParticipants)
+      .innerJoin(users, eq(roomParticipants.userId, users.id))
+      .where(eq(roomParticipants.roomId, roomId))
+      .execute();
+
     return {
       roomId: room.roomId,
-      ownerId: room.ownerId,
-      ownerName: room.ownerName,
-      participantId: userId,
-      participantName: userName,
+      owner: { id: room.ownerId, name: room.ownerName },
+      participants,
     };
   }
 }

@@ -13,11 +13,11 @@ export class RoomController {
         return;
       }
 
-      const { roomId, ownerId } = await roomService.createRoom(ownerName);
-      res.status(201).json({ roomId, ownerId });
+      const room = await roomService.createRoom(ownerName);
+      res.status(201).json(room);
     } catch (error) {
       console.error("Error creating room:", error);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Failed to create room" });
     }
   };
 
@@ -30,8 +30,8 @@ export class RoomController {
         return;
       }
 
-      const result = await roomService.joinRoom(roomId, userName);
-      res.status(200).json(result);
+      const room = await roomService.joinRoom(roomId, userName);
+      res.status(200).json(room);
     } catch (error) {
       console.error("Error joining room:", error);
       res.status(500).json({ error: "Failed to join room" });
