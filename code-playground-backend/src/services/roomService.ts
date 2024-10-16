@@ -32,14 +32,22 @@ export class RoomService {
   }
 
   async joinRoom(roomId: string, userName: string) {
-    const room = await db.query.rooms.findFirst({
-      where: eq(rooms.id, roomId),
-    });
+    const roomResult = await db
+      .select({
+        roomId: rooms.id,
+        ownerId: rooms.ownerId,
+        ownerName: users.name,
+      })
+      .from(rooms)
+      .innerJoin(users, eq(rooms.ownerId, users.id))
+      .where(eq(rooms.id, roomId))
+      .execute();
 
-    if (!room) {
+    if (roomResult.length === 0) {
       throw new Error("Room not found");
     }
 
+    const room = roomResult[0];
     const userId = uuidv4();
 
     await db.transaction(async tx => {
@@ -56,6 +64,12 @@ export class RoomService {
       });
     });
 
-    return { roomId, userId };
+    return {
+      roomId: room.roomId,
+      ownerId: room.ownerId,
+      ownerName: room.ownerName,
+      participantId: userId,
+      participantName: userName,
+    };
   }
 }
