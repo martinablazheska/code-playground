@@ -7,5 +7,6 @@ const roomController = new RoomController();
 router.post("/create", (req: Request, res: Response) =>
   roomController.createRoom(req, res)
 );
+router.post("/join", (req, res) => roomController.joinRoom(req, res));
 
 export default router;
