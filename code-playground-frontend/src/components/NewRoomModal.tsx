@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { roomContext } from "../contexts/roomContext";
-import { createRoom } from "../services/roomService";
+import { useRoom } from "../hooks/useRoom";
 import Button from "./Button";
 import {
   Modal,
@@ -16,28 +16,21 @@ const NewRoomModal: React.FC<{
   onOpenChange: () => void;
 }> = ({ isOpen, onOpenChange }) => {
   const { setRoom } = useContext(roomContext);
+  const { createRoom, isLoading, error } = useRoom();
 
   const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleCreateRoom = async () => {
     if (!name.trim()) {
-      setError("Please enter your name");
       return;
     }
 
-    setIsLoading(true);
-    setError("");
-
     try {
-      const { roomId, ownerId } = await createRoom(name);
-      setRoom({ roomId, ownerId });
+      const newRoom = await createRoom(name);
+      setRoom(newRoom);
+      onOpenChange();
     } catch (error) {
       console.error("Error creating room:", error);
-      setError("Failed to create room. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -58,7 +51,7 @@ const NewRoomModal: React.FC<{
             value={name}
             onValueChange={setName}
             label="Enter your name"
-            labelPlacement="outside"
+            labelPlacement="inside"
             className="bg-transparent"
             isRequired
             isClearable
