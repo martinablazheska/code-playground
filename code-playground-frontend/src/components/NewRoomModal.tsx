@@ -37,7 +37,10 @@ const NewRoomModal: React.FC<{
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onOpenChange}
+      onOpenChange={() => {
+        onOpenChange();
+        setName("");
+      }}
       classNames={{
         base: "bg-zinc-900 text-white",
         closeButton: "hover:bg-zinc-800 active:bg-zinc-800 text-white",
