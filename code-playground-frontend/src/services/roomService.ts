@@ -6,7 +6,7 @@ const API_BASE_URL = "http://localhost:3000/api";
 export const roomService = {
   createRoom: async (ownerName: string): Promise<Room> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/rooms/create`, {
+      const response = await axios.post<Room>(`${API_BASE_URL}/rooms/create`, {
         ownerName,
       });
       return response.data;
@@ -18,7 +18,7 @@ export const roomService = {
 
   joinRoom: async (roomId: string, userName: string): Promise<Room> => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/rooms/join`, {
+      const response = await axios.post<Room>(`${API_BASE_URL}/rooms/join`, {
         roomId,
         userName,
       });
