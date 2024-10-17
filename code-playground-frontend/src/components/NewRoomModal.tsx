@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { roomContext } from "../contexts/roomContext";
 import { useRoom } from "../hooks/useRoom";
 import Button from "./Button";
@@ -17,6 +18,7 @@ const NewRoomModal: React.FC<{
 }> = ({ isOpen, onOpenChange }) => {
   const { setRoom } = useContext(roomContext);
   const { createRoom, isLoading, error } = useRoom();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
 
@@ -29,6 +31,7 @@ const NewRoomModal: React.FC<{
       const newRoom = await createRoom(name);
       setRoom(newRoom);
       onOpenChange();
+      navigate(`/room/${newRoom.roomId}`);
     } catch (error) {
       console.error("Error creating room:", error);
     }

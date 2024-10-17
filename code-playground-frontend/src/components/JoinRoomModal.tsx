@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { roomContext } from "../contexts/roomContext";
 import { useRoom } from "../hooks/useRoom";
 import Button from "./Button";
@@ -17,6 +18,7 @@ const JoinRoomModal: React.FC<{
 }> = ({ isOpen, onOpenChange }) => {
   const { setRoom } = useContext(roomContext);
   const { joinRoom, isLoading, error } = useRoom();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -30,6 +32,7 @@ const JoinRoomModal: React.FC<{
       const joinedRoom = await joinRoom(roomId, name);
       setRoom(joinedRoom);
       onOpenChange();
+      navigate(`/room/${joinedRoom.roomId}`);
     } catch (error) {
       console.error("Error joining room:", error);
     }
