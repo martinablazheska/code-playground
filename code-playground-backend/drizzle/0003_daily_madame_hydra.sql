@@ -1,0 +1,1 @@
+ALTER TABLE "rooms" ADD COLUMN "code_data" jsonb DEFAULT '{"content":"// Start coding here","lastEditedBy":null,"lastEditedAt":null}'::jsonb NOT NULL;

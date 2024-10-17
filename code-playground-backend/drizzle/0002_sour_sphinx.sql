@@ -1,0 +1,1 @@
+ALTER TABLE "room_participants" ADD CONSTRAINT "room_participants_room_id_user_id_pk" PRIMARY KEY("room_id","user_id");

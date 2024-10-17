@@ -15,6 +15,20 @@
       "when": 1729075156474,
       "tag": "0001_lucky_dexter_bennett",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1729149825268,
+      "tag": "0002_sour_sphinx",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1729156065986,
+      "tag": "0003_daily_madame_hydra",
+      "breakpoints": true
     }
   ]
 }

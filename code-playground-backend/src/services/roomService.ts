@@ -8,16 +8,29 @@ interface User {
   name: string;
 }
 
+interface CodeData {
+  content: string;
+  lastEditedBy: User | null;
+  lastEditedAt: string | null;
+}
+
 interface Room {
   roomId: string;
   owner: User;
   participants: User[];
+  codeData: CodeData;
 }
 
 export class RoomService {
   async createRoom(ownerName: string): Promise<Room> {
     const ownerId = uuidv4();
     const roomId = uuidv4();
+
+    const initialCodeData: CodeData = {
+      content: "// Start coding here",
+      lastEditedBy: null,
+      lastEditedAt: null,
+    };
 
     await db.transaction(async tx => {
       await tx.insert(users).values({
@@ -28,6 +41,7 @@ export class RoomService {
       await tx.insert(rooms).values({
         id: roomId,
         ownerId: ownerId,
+        codeData: initialCodeData,
       });
 
       await tx.insert(roomParticipants).values({
@@ -40,6 +54,7 @@ export class RoomService {
       roomId,
       owner: { id: ownerId, name: ownerName },
       participants: [{ id: ownerId, name: ownerName }],
+      codeData: initialCodeData,
     };
   }
 
@@ -49,6 +64,7 @@ export class RoomService {
         roomId: rooms.id,
         ownerId: rooms.ownerId,
         ownerName: users.name,
+        codeData: rooms.codeData,
       })
       .from(rooms)
       .innerJoin(users, eq(rooms.ownerId, users.id))
@@ -88,6 +104,35 @@ export class RoomService {
       roomId: room.roomId,
       owner: { id: room.ownerId, name: room.ownerName },
       participants,
+      codeData: room.codeData as CodeData,
     };
+  }
+
+  async updateCode(
+    roomId: string,
+    content: string,
+    editedBy: User
+  ): Promise<void> {
+    const updatedCodeData: CodeData = {
+      content,
+      lastEditedBy: editedBy,
+      lastEditedAt: new Date().toISOString(),
+    };
+
+    await db
+      .update(rooms)
+      .set({ codeData: updatedCodeData })
+      .where(eq(rooms.id, roomId))
+      .execute();
+  }
+
+  async getCode(roomId: string): Promise<CodeData | null> {
+    const result = await db
+      .select({ codeData: rooms.codeData })
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .execute();
+
+    return (result[0]?.codeData as CodeData) ?? null;
   }
 }
