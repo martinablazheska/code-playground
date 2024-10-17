@@ -16,7 +16,7 @@ const NewRoomModal: React.FC<{
   isOpen: boolean;
   onOpenChange: () => void;
 }> = ({ isOpen, onOpenChange }) => {
-  const { setRoom } = useContext(roomContext);
+  const { setRoom, setCurrentUser } = useContext(roomContext);
   const { createRoom, isLoading, error } = useRoom();
   const navigate = useNavigate();
 
@@ -30,6 +30,7 @@ const NewRoomModal: React.FC<{
     try {
       const newRoom = await createRoom(name);
       setRoom(newRoom);
+      setCurrentUser(newRoom.owner);
       onOpenChange();
       navigate(`/room/${newRoom.roomId}`);
     } catch (error) {

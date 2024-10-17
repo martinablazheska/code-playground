@@ -4,30 +4,30 @@ import { roomContext } from "../../contexts/roomContext";
 import Header from "../../components/Header";
 
 const Room: React.FC = () => {
-  const { room } = useContext(roomContext);
+  const { room, currentUser } = useContext(roomContext);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!room || room.roomId !== id) {
+    if (!room || room.roomId !== id || !currentUser) {
       navigate("/");
     }
-  }, [room, id, navigate]);
+  }, [room, id, currentUser, navigate]);
 
-  if (!room) {
-    return null; // or a loading spinner
+  if (!room || !currentUser) {
+    return null; // add loading spinner later
   }
 
   return (
     <div className="h-screen w-screen flex flex-col">
-      <Header />
+      <Header currentUser={currentUser} />
       <div className="flex-grow p-4">
         <h1 className="text-2xl font-bold mb-4">Room: {room.roomId}</h1>
         <p>Owner: {room.owner.name}</p>
+        <p>Current User: {currentUser.name}</p>
         <p>Participants: {room.participants.map(p => p.name).join(", ")}</p>
         <div className="mt-4">
-          <h2 className="text-xl font-bold mb-2">Code:</h2>
-          <pre className="bg-gray-100 p-4 rounded">{room.codeData.content}</pre>
+          <pre className="bg-zinc-950 p-4 rounded">{room.codeData.content}</pre>
           {room.codeData.lastEditedBy && (
             <p className="mt-2">
               Last edited by: {room.codeData.lastEditedBy.name} at{" "}

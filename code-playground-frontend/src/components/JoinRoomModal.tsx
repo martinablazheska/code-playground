@@ -16,7 +16,7 @@ const JoinRoomModal: React.FC<{
   isOpen: boolean;
   onOpenChange: () => void;
 }> = ({ isOpen, onOpenChange }) => {
-  const { setRoom } = useContext(roomContext);
+  const { setRoom, setCurrentUser } = useContext(roomContext);
   const { joinRoom, isLoading, error } = useRoom();
   const navigate = useNavigate();
 
@@ -31,6 +31,10 @@ const JoinRoomModal: React.FC<{
     try {
       const joinedRoom = await joinRoom(roomId, name);
       setRoom(joinedRoom);
+      const currentUser = joinedRoom.participants.find(p => p.name === name);
+      if (currentUser) {
+        setCurrentUser(currentUser);
+      }
       onOpenChange();
       navigate(`/room/${joinedRoom.roomId}`);
     } catch (error) {

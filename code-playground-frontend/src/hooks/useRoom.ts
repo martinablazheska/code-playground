@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { roomService } from "../services/roomService";
-import { Room } from "../types/types";
+import { roomContext } from "../contexts/roomContext";
 
 export const useRoom = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [room, setRoom] = useState<Room | null>(null);
+  const { setRoom, setCurrentUser } = useContext(roomContext);
 
   const createRoom = async (ownerName: string) => {
     setIsLoading(true);
@@ -13,6 +13,7 @@ export const useRoom = () => {
     try {
       const newRoom = await roomService.createRoom(ownerName);
       setRoom(newRoom);
+      setCurrentUser(newRoom.owner);
       return newRoom;
     } catch (err) {
       setError("Failed to create room. Please try again.");
@@ -28,6 +29,12 @@ export const useRoom = () => {
     try {
       const joinedRoom = await roomService.joinRoom(roomId, userName);
       setRoom(joinedRoom);
+      const currentUser = joinedRoom.participants.find(
+        p => p.name === userName
+      );
+      if (currentUser) {
+        setCurrentUser(currentUser);
+      }
       return joinedRoom;
     } catch (err) {
       setError("Failed to join room. Please try again.");
@@ -37,5 +44,5 @@ export const useRoom = () => {
     }
   };
 
-  return { createRoom, joinRoom, isLoading, error, room };
+  return { createRoom, joinRoom, isLoading, error };
 };
