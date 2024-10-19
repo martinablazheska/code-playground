@@ -15,6 +15,7 @@ import Editor from "@monaco-editor/react";
 
 const API_URL = "http://localhost:3000/api";
 const SOCKET_URL = "http://localhost:3000";
+const Y_SOCKET_URL = "http://localhost:3000/yjs-ws";
 
 const Room: React.FC = () => {
   const { token } = useAuth();
@@ -67,11 +68,7 @@ const Room: React.FC = () => {
   useEffect(() => {
     if (editorRef.current && roomId) {
       const ydoc = new Y.Doc();
-      const provider = new WebsocketProvider(
-        "ws://localhost:3000/yjs-ws",
-        roomId,
-        ydoc
-      );
+      const provider = new WebsocketProvider(Y_SOCKET_URL, roomId, ydoc);
       const type = ydoc.getText("monaco");
 
       const binding = new MonacoBinding(
@@ -88,7 +85,7 @@ const Room: React.FC = () => {
     }
   }, [roomId]);
 
-  const handleEditorDidMount = (editor: any) => {
+  const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
     editor.setValue("");
   };

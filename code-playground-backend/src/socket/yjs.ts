@@ -9,13 +9,12 @@ export const setupYjsWebsocketServer = (httpServer: Server) => {
 
   httpServer.on("upgrade", (request, socket, head) => {
     const url = new URL(request.url!, `http://${request.headers.host}`);
-
-    if (url.pathname === "/yjs-ws") {
+    console.log(url.pathname);
+    if (url.pathname.includes("/yjs-ws")) {
       wss.handleUpgrade(request, socket, head, ws => {
         wss.emit("connection", ws, request);
       });
+      console.log("Yjs WebSocket server is set up");
     }
   });
-
-  console.log("Yjs WebSocket server is set up");
 };
