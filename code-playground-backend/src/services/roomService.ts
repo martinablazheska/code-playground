@@ -73,31 +73,6 @@ export class RoomService {
   }
 
   async leaveRoom(roomId: string, userId: string): Promise<Room> {
-    await db
-      .delete(roomParticipants)
-      .where(
-        and(
-          eq(roomParticipants.roomId, roomId),
-          eq(roomParticipants.userId, userId)
-        )
-      );
-
-    return this.getRoom(roomId);
-  }
-
-  async addParticipant(roomId: string, userId: string): Promise<Room> {
-    await db
-      .insert(roomParticipants)
-      .values({
-        roomId: roomId,
-        userId: userId,
-      })
-      .onConflictDoNothing();
-
-    return this.getRoom(roomId);
-  }
-
-  async removeParticipant(roomId: string, userId: string): Promise<Room> {
     // Remove the participant from the roomParticipants table
     await db
       .delete(roomParticipants)

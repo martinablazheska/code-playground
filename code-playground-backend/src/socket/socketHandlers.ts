@@ -34,40 +34,42 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
     });
 
     socket.on("leave_room", async ({ roomId, userName }) => {
-      try {
-        const room = await roomService.leaveRoom(roomId, userName);
-        socket.leave(roomId);
-        io.to(roomId).emit("room:update", room);
-        console.log(`User ${userName} left room ${roomId}`);
-      } catch (error) {
-        console.error("Error leaving room:", error);
-        socket.emit("error", "Failed to leave room");
-      }
+      await handleUserLeavingRoom(socket, io, roomId, userName);
     });
 
     socket.on("disconnect", async () => {
       console.log("A user disconnected");
-
       if (userId && currentRoomId) {
-        try {
-          const updatedRoom = await roomService.removeParticipant(
-            currentRoomId,
-            userId
-          );
-
-          // Notify other users in the room
-          socket
-            .to(currentRoomId)
-            .emit("user:left", { userId, roomId: currentRoomId });
-
-          // Send updated room information
-          io.to(currentRoomId).emit("room:update", updatedRoom);
-
-          console.log(`User ${userId} removed from room ${currentRoomId}`);
-        } catch (error) {
-          console.error("Error removing user from room:", error);
-        }
+        await handleUserLeavingRoom(socket, io, currentRoomId, userId, true);
       }
     });
   });
 };
+
+async function handleUserLeavingRoom(
+  socket: Socket,
+  io: SocketIOServer,
+  roomId: string,
+  userId: string,
+  isDisconnect: boolean = false
+) {
+  try {
+    const updatedRoom = await roomService.leaveRoom(roomId, userId);
+
+    if (!isDisconnect) {
+      socket.leave(roomId);
+    }
+
+    // Notify other users in the room
+    socket.to(roomId).emit("user:left", { userId, roomId });
+
+    // Send updated room information
+    io.to(roomId).emit("room:update", updatedRoom);
+    console.log(`User ${userId} left room ${roomId}`);
+  } catch (error) {
+    console.error("Error handling user leaving room:", error);
+    if (!isDisconnect) {
+      socket.emit("error", "Failed to leave room");
+    }
+  }
+}
