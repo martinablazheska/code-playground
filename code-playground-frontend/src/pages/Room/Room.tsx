@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { AvatarGroup } from "@nextui-org/avatar";
@@ -7,7 +7,6 @@ import { Room as RoomType } from "../../types/types";
 import { useAuth } from "../../hooks/useAuth";
 import Avatar from "../../components/Avatar";
 import { io, Socket } from "socket.io-client";
-
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
@@ -23,7 +22,10 @@ const Room: React.FC = () => {
   const [room, setRoom] = useState<RoomType | null>(null);
   const { id: roomId } = useParams<{ id: string }>();
   const socketRef = useRef<Socket | null>(null);
+  const editorRef = useRef<editor.IStandaloneCodeEditor>();
+  const [isEditorReady, setIsEditorReady] = useState(false);
 
+  //socket.io connection
   useEffect(() => {
     socketRef.current = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
@@ -47,6 +49,7 @@ const Room: React.FC = () => {
     };
   }, [roomId, token]);
 
+  //fetching room details
   useEffect(() => {
     const fetchRoom = async () => {
       try {
@@ -64,49 +67,35 @@ const Room: React.FC = () => {
     }
   }, [roomId, token]);
 
-  const editorRef = useRef<editor.IStandaloneCodeEditor>();
+  // Y-websocket connection
+  useEffect(() => {
+    if (isEditorReady && editorRef.current && roomId) {
+      const doc = new Y.Doc();
+      const provider = new WebsocketProvider(Y_SOCKET_URL, roomId, doc);
+      const type = doc.getText("monaco");
 
-  // useEffect(() => {
-  //   if (editorRef.current && roomId) {
-  //     const ydoc = new Y.Doc();
-  //     const provider = new WebsocketProvider(Y_SOCKET_URL, roomId, ydoc);
-  //     const type = ydoc.getText("monaco");
+      const binding = new MonacoBinding(
+        type,
+        editorRef.current.getModel()!,
+        new Set([editorRef.current]),
+        provider.awareness
+      );
 
-  //     const binding = new MonacoBinding(
-  //       type,
-  //       editorRef.current.getModel(),
-  //       new Set([editorRef.current]),
-  //       provider.awareness
-  //     );
+      return () => {
+        binding.destroy();
+        provider.disconnect();
+      };
+    }
+  }, [roomId, isEditorReady]);
 
-  //     return () => {
-  //       binding.destroy();
-  //       provider.disconnect();
-  //     };
-  //   }
-  // }, [roomId]);
-
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
-    editorRef.current = editor;
-
-    // Initialize yjs
-    const doc = new Y.Doc(); // collection of shared objects
-
-    // Connect to peers with WebSocket
-    const provider: WebsocketProvider = new WebsocketProvider(
-      Y_SOCKET_URL,
-      room?.roomId,
-      doc
-    );
-    const type = doc.getText("monaco");
-
-    // Bind yjs doc to Manaco editor
-    const binding = new MonacoBinding(
-      type,
-      editorRef.current!.getModel()!,
-      new Set([editorRef.current!])
-    );
-  };
+  // Editor handler
+  const handleEditorDidMount = useCallback(
+    (editor: editor.IStandaloneCodeEditor) => {
+      editorRef.current = editor;
+      setIsEditorReady(true);
+    },
+    []
+  );
 
   if (!room) {
     return <div>Loading...</div>;
