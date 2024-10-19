@@ -8,6 +8,8 @@ import { useRoom } from "../../hooks/useRoom";
 import { setupYjs } from "../../services/yjs";
 import { editorTheme } from "../../theme/editorTheme";
 import { useAuth } from "../../hooks/useAuth";
+import { Button } from "@nextui-org/button";
+import { Lock } from "lucide-react";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
@@ -44,8 +46,17 @@ const Room: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Header />
-      <div className="flex flex-row justify-between px-4 py-6">
+      <div className="flex flex-row items-center gap-2 px-4 py-6">
         <div className="font-semibold">{room.owner.username}'s code room</div>
+        <Button
+          isIconOnly
+          variant="light"
+          size="sm"
+          className="text-white"
+          radius="full"
+        >
+          <Lock size={15} />
+        </Button>
       </div>
       <div className="flex-1 flex items-stretch justify-between px-4 gap-5">
         <div className="h-[95%] w-3/4 rounded-lg bg-zinc-800 p-4">
