@@ -63,18 +63,14 @@ const Room: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Header />
-      <div className="flex-1 p-4">
-        <h2 className="text-2xl font-bold mb-4">Room: {room.roomId}</h2>
-        <p>Owner: {room.owner.username}</p>
-        <h3 className="text-xl font-semibold mt-4 mb-2">Participants:</h3>
+      <div className=" flex flex-row justify-between p-4">
+        <div className="font-semibold">{room.owner.username}'s code room</div>
         <AvatarGroup>
           {room.participants.map((participant, index) => (
             <Avatar key={index} username={participant.username} />
           ))}
         </AvatarGroup>
-        <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded">
-          Leave Room
-        </button>
+
         {/* code editor component here */}
       </div>
     </div>
