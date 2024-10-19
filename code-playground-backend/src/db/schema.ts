@@ -9,7 +9,8 @@ import {
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -23,6 +24,7 @@ export const rooms = pgTable("rooms", {
     content: "// Start coding here",
     lastEditedBy: null,
     lastEditedAt: null,
+    programmingLanguage: "JavaScript",
   }),
 });
 
