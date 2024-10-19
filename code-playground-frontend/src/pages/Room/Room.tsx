@@ -95,7 +95,7 @@ const Room: React.FC = () => {
     // Connect to peers with WebSocket
     const provider: WebsocketProvider = new WebsocketProvider(
       Y_SOCKET_URL,
-      "roomId",
+      room?.roomId,
       doc
     );
     const type = doc.getText("monaco");
