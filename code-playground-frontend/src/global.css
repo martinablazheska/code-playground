@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
 body {
   background-color: #1f2024;
   font-family: "Ubuntu", sans-serif;

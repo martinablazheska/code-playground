@@ -1,6 +1,6 @@
 export interface User {
   id: string;
-  name: string;
+  username: string;
 }
 
 export interface CodeData {
@@ -14,4 +14,5 @@ export interface Room {
   owner: User;
   participants: User[];
   codeData: CodeData;
+  programmingLanguage: string;
 }
