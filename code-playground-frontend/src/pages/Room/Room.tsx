@@ -1,85 +1,22 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import { AvatarGroup } from "@nextui-org/avatar";
-import Header from "../../components/Header";
-import { Room as RoomType } from "../../types/types";
-import { useAuth } from "../../hooks/useAuth";
-import Avatar from "../../components/Avatar";
-import { io, Socket } from "socket.io-client";
-import * as Y from "yjs";
-import { WebsocketProvider } from "y-websocket";
-import { MonacoBinding } from "y-monaco";
-import Editor from "@monaco-editor/react";
 import { editor } from "monaco-editor";
-
-const API_URL = "http://localhost:3000/api";
-const SOCKET_URL = "http://localhost:3000";
-const Y_SOCKET_URL = "http://localhost:3000/yjs-ws";
+import Editor from "@monaco-editor/react";
+import Header from "../../components/Header";
+import Avatar from "../../components/Avatar";
+import { useRoom } from "../../hooks/useRoom";
+import { setupYjs } from "../../services/yjs";
 
 const Room: React.FC = () => {
-  const { token } = useAuth();
-  const [room, setRoom] = useState<RoomType | null>(null);
   const { id: roomId } = useParams<{ id: string }>();
-  const socketRef = useRef<Socket | null>(null);
+  const { room } = useRoom(roomId!);
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
 
-  //socket.io connection
-  useEffect(() => {
-    socketRef.current = io(SOCKET_URL, {
-      transports: ["websocket", "polling"],
-      path: "/io",
-    });
-    socketRef.current.on("connect", () => console.log("connected ws"));
-    socketRef.current.on("room:update", (room: RoomType) => {
-      setRoom(room);
-    });
-
-    if (roomId && token) {
-      socketRef.current.emit("join", { roomId, token });
-    }
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current.off("connect");
-        socketRef.current.off("room:update");
-      }
-    };
-  }, [roomId, token]);
-
-  //fetching room details
-  useEffect(() => {
-    const fetchRoom = async () => {
-      try {
-        const response = await axios.get<RoomType>(
-          `${API_URL}/rooms/${roomId}`
-        );
-        setRoom(response.data);
-      } catch (error) {
-        console.error("Error fetching room:", error);
-      }
-    };
-
-    if (roomId) {
-      fetchRoom();
-    }
-  }, [roomId, token]);
-
-  // Y-websocket connection
   useEffect(() => {
     if (isEditorReady && editorRef.current && roomId) {
-      const doc = new Y.Doc();
-      const provider = new WebsocketProvider(Y_SOCKET_URL, roomId, doc);
-      const type = doc.getText("monaco");
-
-      const binding = new MonacoBinding(
-        type,
-        editorRef.current.getModel()!,
-        new Set([editorRef.current]),
-        provider.awareness
-      );
+      const { binding, provider } = setupYjs(roomId, editorRef.current);
 
       return () => {
         binding.destroy();
@@ -88,7 +25,6 @@ const Room: React.FC = () => {
     }
   }, [roomId, isEditorReady]);
 
-  // Editor handler
   const handleEditorDidMount = useCallback(
     (editor: editor.IStandaloneCodeEditor) => {
       editorRef.current = editor;
@@ -104,7 +40,7 @@ const Room: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Header />
-      <div className=" flex flex-row justify-between p-4">
+      <div className="flex flex-row justify-between p-4">
         <div className="font-semibold">{room.owner.username}'s code room</div>
         <AvatarGroup>
           {room.participants.map((participant, index) => (
