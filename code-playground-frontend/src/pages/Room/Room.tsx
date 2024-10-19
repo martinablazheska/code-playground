@@ -8,6 +8,11 @@ import { useAuth } from "../../hooks/useAuth";
 import Avatar from "../../components/Avatar";
 import { io, Socket } from "socket.io-client";
 
+import * as Y from "yjs";
+import { WebsocketProvider } from "y-websocket";
+import { MonacoBinding } from "y-monaco";
+import Editor from "@monaco-editor/react";
+
 const API_URL = "http://localhost:3000/api";
 const SOCKET_URL = "http://localhost:3000";
 
@@ -20,6 +25,7 @@ const Room: React.FC = () => {
   useEffect(() => {
     socketRef.current = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
+      path: "/io",
     });
     socketRef.current.on("connect", () => console.log("connected ws"));
     socketRef.current.on("room:update", (room: RoomType) => {
@@ -56,6 +62,37 @@ const Room: React.FC = () => {
     }
   }, [roomId, token]);
 
+  const editorRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (editorRef.current && roomId) {
+      const ydoc = new Y.Doc();
+      const provider = new WebsocketProvider(
+        "ws://localhost:3000/yjs-ws",
+        roomId,
+        ydoc
+      );
+      const type = ydoc.getText("monaco");
+
+      const binding = new MonacoBinding(
+        type,
+        editorRef.current.getModel(),
+        new Set([editorRef.current]),
+        provider.awareness
+      );
+
+      return () => {
+        binding.destroy();
+        provider.disconnect();
+      };
+    }
+  }, [roomId]);
+
+  const handleEditorDidMount = (editor: any) => {
+    editorRef.current = editor;
+    editor.setValue("");
+  };
+
   if (!room) {
     return <div>Loading...</div>;
   }
@@ -70,9 +107,12 @@ const Room: React.FC = () => {
             <Avatar key={index} username={participant.username} />
           ))}
         </AvatarGroup>
-
-        {/* code editor component here */}
       </div>
+      <Editor
+        height="70vh"
+        defaultLanguage={room.programmingLanguage ?? "JavaScript"}
+        onMount={handleEditorDidMount}
+      />
     </div>
   );
 };

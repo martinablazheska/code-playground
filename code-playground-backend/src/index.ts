@@ -7,6 +7,7 @@ import roomRoutes from "./routes/roomRoutes";
 import authRoutes from "./routes/authRoutes";
 import { RoomService } from "./services/roomService";
 import { setupSocketHandlers } from "./socket/socketHandlers";
+import { setupYjsWebsocketServer } from "./socket/yjs";
 
 const roomService = new RoomService();
 
@@ -21,6 +22,7 @@ const io = new SocketIOServer(httpServer, {
     methods: ["GET", "POST"],
   },
   transports: ["websocket", "polling"],
+  path: "/io",
 });
 
 app.use(
@@ -35,6 +37,7 @@ app.use("/api/rooms", roomRoutes);
 app.use("/api/auth", authRoutes);
 
 setupSocketHandlers(io);
+setupYjsWebsocketServer(httpServer);
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
