@@ -1,37 +1,42 @@
 import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
 import http from "http";
-import { Server } from "socket.io";
-import { setupSocketHandlers } from "./socket/socketHandlers";
+import cors from "cors";
+import dotenv from "dotenv";
+import { Server as SocketIOServer } from "socket.io";
 import roomRoutes from "./routes/roomRoutes";
+import authRoutes from "./routes/authRoutes";
+import { RoomService } from "./services/roomService";
+import { setupSocketHandlers } from "./socket/socketHandlers";
+
+const roomService = new RoomService();
 
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
+const httpServer = http.createServer(app);
+
+const io = new SocketIOServer(httpServer, {
   cors: {
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
+  transports: ["websocket", "polling"],
 });
-const port = process.env.PORT || 3000;
 
-const corsOptions = {
-  origin: "http://localhost:5173",
-  optionsSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
-// Routes
 app.use("/api/rooms", roomRoutes);
+app.use("/api/auth", authRoutes);
 
-//Socket handlers
 setupSocketHandlers(io);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

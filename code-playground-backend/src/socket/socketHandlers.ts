@@ -1,69 +1,73 @@
-import { Server, Socket } from "socket.io";
+import { Server as SocketIOServer, Socket } from "socket.io";
 import { RoomService } from "../services/roomService";
+import { AuthService } from "../services/authService";
 
 const roomService = new RoomService();
+const authService = new AuthService();
 
-interface User {
-  id: string;
-  name: string;
-}
-
-interface CodeData {
-  content: string;
-  lastEditedBy: User | null;
-  lastEditedAt: string | null;
-}
-
-export function setupSocketHandlers(io: Server) {
+export const setupSocketHandlers = (io: SocketIOServer) => {
   io.on("connection", (socket: Socket) => {
-    console.log("New Socket.IO connection");
+    console.log("A user connected");
 
-    socket.on(
-      "join_room",
-      async (data: { roomId: string; userName: string }) => {
-        const { roomId, userName } = data;
+    // Store the user's information in the socket object
+    let userId: string | null = null;
+    let currentRoomId: string | null = null;
 
-        try {
-          let room = await roomService.joinRoom(roomId, userName);
-          socket.join(roomId);
+    socket.on("join", async ({ roomId, token }) => {
+      console.log("Received join event with:", {
+        roomId,
+        token: token.substring(0, 10) + "...",
+      }); // partial token for debugging
 
-          socket.emit("room_joined", { room });
-          socket.to(roomId).emit("user_joined", { userName });
-        } catch (error) {
-          console.error("Error joining room:", error);
-          socket.emit("error", { message: "Failed to join room" });
-        }
+      try {
+        userId = authService.verifyToken(token);
+        const room = await roomService.joinRoom(roomId, userId);
+        currentRoomId = roomId;
+
+        socket.join(roomId);
+        io.to(roomId).emit("room:update", room);
+        console.log(`User ${userId} joined room ${roomId}`);
+      } catch (error) {
+        console.error("Error joining room:", error);
+        socket.emit("error", "Failed to join room");
       }
-    );
-
-    socket.on("yjsUpdate", (data: { roomId: string; update: Uint8Array }) => {
-      socket.to(data.roomId).emit("yjsUpdate", data.update);
     });
 
-    socket.on(
-      "save_code",
-      async (data: { roomId: string; codeData: CodeData }) => {
-        try {
-          const { roomId, codeData } = data;
-          await roomService.updateCode(
-            roomId,
-            codeData.content,
-            codeData.lastEditedBy as User
-          );
-          socket.emit("save_success");
-        } catch (error) {
-          console.error("Error saving code:", error);
-          socket.emit("save_error", { message: "Failed to save code" });
-        }
+    socket.on("leave_room", async ({ roomId, userName }) => {
+      try {
+        const room = await roomService.leaveRoom(roomId, userName);
+        socket.leave(roomId);
+        io.to(roomId).emit("room:update", room);
+        console.log(`User ${userName} left room ${roomId}`);
+      } catch (error) {
+        console.error("Error leaving room:", error);
+        socket.emit("error", "Failed to leave room");
       }
-    );
+    });
 
-    socket.on("disconnecting", () => {
-      for (const room of socket.rooms) {
-        if (room !== socket.id) {
-          socket.to(room).emit("user_left", { socketId: socket.id });
+    socket.on("disconnect", async () => {
+      console.log("A user disconnected");
+
+      if (userId && currentRoomId) {
+        try {
+          const updatedRoom = await roomService.removeParticipant(
+            currentRoomId,
+            userId
+          );
+
+          // Notify other users in the room
+          socket
+            .to(currentRoomId)
+            .emit("user:left", { userId, roomId: currentRoomId });
+
+          // Send updated room information
+          io.to(currentRoomId).emit("room:update", updatedRoom);
+
+          console.log(`User ${userId} removed from room ${currentRoomId}`);
+        } catch (error) {
+          console.error("Error removing user from room:", error);
         }
       }
     });
   });
-}
+};
