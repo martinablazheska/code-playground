@@ -12,6 +12,7 @@ import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
 import Editor from "@monaco-editor/react";
+import { editor } from "monaco-editor";
 
 const API_URL = "http://localhost:3000/api";
 const SOCKET_URL = "http://localhost:3000";
@@ -63,31 +64,48 @@ const Room: React.FC = () => {
     }
   }, [roomId, token]);
 
-  const editorRef = useRef<any>(null);
+  const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
-  useEffect(() => {
-    if (editorRef.current && roomId) {
-      const ydoc = new Y.Doc();
-      const provider = new WebsocketProvider(Y_SOCKET_URL, roomId, ydoc);
-      const type = ydoc.getText("monaco");
+  // useEffect(() => {
+  //   if (editorRef.current && roomId) {
+  //     const ydoc = new Y.Doc();
+  //     const provider = new WebsocketProvider(Y_SOCKET_URL, roomId, ydoc);
+  //     const type = ydoc.getText("monaco");
 
-      const binding = new MonacoBinding(
-        type,
-        editorRef.current.getModel(),
-        new Set([editorRef.current]),
-        provider.awareness
-      );
+  //     const binding = new MonacoBinding(
+  //       type,
+  //       editorRef.current.getModel(),
+  //       new Set([editorRef.current]),
+  //       provider.awareness
+  //     );
 
-      return () => {
-        binding.destroy();
-        provider.disconnect();
-      };
-    }
-  }, [roomId]);
+  //     return () => {
+  //       binding.destroy();
+  //       provider.disconnect();
+  //     };
+  //   }
+  // }, [roomId]);
 
-  const handleEditorDidMount = (editor, monaco) => {
+  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
-    editor.setValue("");
+
+    // Initialize yjs
+    const doc = new Y.Doc(); // collection of shared objects
+
+    // Connect to peers with WebSocket
+    const provider: WebsocketProvider = new WebsocketProvider(
+      Y_SOCKET_URL,
+      "roomId",
+      doc
+    );
+    const type = doc.getText("monaco");
+
+    // Bind yjs doc to Manaco editor
+    const binding = new MonacoBinding(
+      type,
+      editorRef.current!.getModel()!,
+      new Set([editorRef.current!])
+    );
   };
 
   if (!room) {
