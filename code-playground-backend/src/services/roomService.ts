@@ -138,7 +138,10 @@ export class RoomService {
 
   private async getUserById(userId: string): Promise<User> {
     const [user] = await db
-      .select()
+      .select({
+        id: users.id,
+        username: users.username,
+      })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1)
