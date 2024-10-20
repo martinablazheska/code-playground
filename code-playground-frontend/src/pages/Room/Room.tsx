@@ -14,7 +14,7 @@ import { Lock, X } from "lucide-react";
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
   const { room, removeParticipant } = useRoom(roomId!);
-  const { username, token } = useAuth();
+  const { username } = useAuth();
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
 
@@ -37,18 +37,6 @@ const Room: React.FC = () => {
       setIsEditorReady(true);
     },
     []
-  );
-
-  const handleRemoveParticipant = useCallback(
-    async (participantUsername: string) => {
-      try {
-        if (!roomId || !token) return;
-        removeParticipant(participantUsername);
-      } catch (error) {
-        console.error("Error removing participant:", error);
-      }
-    },
-    [roomId, token, removeParticipant]
   );
 
   if (!room) {
@@ -126,9 +114,7 @@ const Room: React.FC = () => {
                   {username === room.owner.username && (
                     <Button
                       isIconOnly
-                      onClick={() =>
-                        handleRemoveParticipant(participant.username)
-                      }
+                      onClick={() => removeParticipant(participant.username)}
                       size="sm"
                       radius="full"
                       variant="light"
