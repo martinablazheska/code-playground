@@ -142,4 +142,32 @@ export class RoomService {
 
     return user;
   }
+
+  async updateRoomCodeData(roomId: string, content: string): Promise<void> {
+    const [currentRoom] = await db
+      .select({
+        codeData: rooms.codeData,
+      })
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .limit(1);
+
+    if (!currentRoom) {
+      throw new Error("Room not found");
+    }
+
+    const currentCodeData = currentRoom.codeData as CodeData;
+
+    await db
+      .update(rooms)
+      .set({
+        codeData: {
+          content,
+          lastEditedAt: new Date().toISOString(),
+          programmingLanguage: currentCodeData.programmingLanguage,
+          lastEditedBy: currentCodeData.lastEditedBy,
+        },
+      })
+      .where(eq(rooms.id, roomId));
+  }
 }
