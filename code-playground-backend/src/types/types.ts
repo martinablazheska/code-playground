@@ -1,4 +1,4 @@
-import { ProgrammingLanguage } from "../constants/programmingLanguages";
+import { ProgrammingLanguage } from "./programmingLanguages";
 
 export interface User {
   id: string;

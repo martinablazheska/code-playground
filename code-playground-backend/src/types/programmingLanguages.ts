@@ -1,12 +1,12 @@
 export enum ProgrammingLanguage {
-  TypeScript = "typescript",
-  JavaScript = "javascript",
-  PHP = "php",
-  CSharp = "csharp",
-  CPlusPlus = "cpp",
-  Java = "java",
-  Python = "python",
-  Ruby = "ruby",
+  TypeScript = "TypeScript",
+  JavaScript = "JavaScript",
+  PHP = "PHP",
+  CSharp = "C#",
+  CPlusPlus = "C++",
+  Java = "Java",
+  Python = "Python",
+  Ruby = "Ruby",
 }
 
 export const DEFAULT_LANGUAGE = ProgrammingLanguage.JavaScript;

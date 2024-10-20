@@ -4,7 +4,7 @@ import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
   SUPPORTED_LANGUAGES,
-} from "../constants/programmingLanguages";
+} from "../types/programmingLanguages";
 
 const roomService = new RoomService();
 

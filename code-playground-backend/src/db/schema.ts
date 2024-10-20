@@ -9,7 +9,7 @@ import {
 import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
-} from "../constants/programmingLanguages";
+} from "../types/programmingLanguages";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),

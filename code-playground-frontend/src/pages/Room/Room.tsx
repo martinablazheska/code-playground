@@ -63,7 +63,7 @@ const Room: React.FC = () => {
           )}
         </div>
         <div className="text-sm text-zinc-400 tracking-wider">
-          {room.owner.username}'s code room
+          {room.owner.username}'s code room ({room.programmingLanguage})
         </div>
       </div>
       <div className="flex-1 flex items-stretch justify-between px-4 gap-5">
@@ -71,8 +71,8 @@ const Room: React.FC = () => {
           <Editor
             height="100%"
             width="100%"
-            defaultLanguage={room.programmingLanguage}
-            language={room.programmingLanguage}
+            defaultLanguage={room.programmingLanguage.toLowerCase()}
+            language={room.programmingLanguage.toLowerCase()}
             onMount={handleEditorDidMount}
             defaultValue={room.codeData.content}
             options={{

@@ -6,7 +6,7 @@ import { User, Room, CodeData } from "../types/types";
 import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
-} from "../constants/programmingLanguages";
+} from "../types/programmingLanguages";
 import { AuthService } from "../services/authService";
 
 export class RoomService {
