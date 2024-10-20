@@ -1,17 +1,41 @@
 import { Request, Response } from "express";
 import { RoomService } from "../services/roomService";
+import {
+  ProgrammingLanguage,
+  DEFAULT_LANGUAGE,
+  SUPPORTED_LANGUAGES,
+} from "../constants/programmingLanguages";
 
 const roomService = new RoomService();
 
 export class RoomController {
   public createRoom = async (req: Request, res: Response): Promise<void> => {
     try {
-      const userId = req.userId; // Assuming you set this in your auth middleware
+      const userId = req.userId;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const room = await roomService.createRoom(userId);
+
+      const { name, programmingLanguage } = req.body;
+
+      if (!name || typeof name !== "string") {
+        res
+          .status(400)
+          .json({ error: "Room name is required and must be a string" });
+        return;
+      }
+
+      let language: ProgrammingLanguage = DEFAULT_LANGUAGE;
+      if (programmingLanguage) {
+        if (!SUPPORTED_LANGUAGES.includes(programmingLanguage)) {
+          res.status(400).json({ error: "Unsupported programming language" });
+          return;
+        }
+        language = programmingLanguage as ProgrammingLanguage;
+      }
+
+      const room = await roomService.createRoom(userId, name, language);
       res.status(201).json(room);
     } catch (error) {
       console.error("Error creating room:", error);
@@ -22,7 +46,8 @@ export class RoomController {
   public joinRoom = async (req: Request, res: Response): Promise<void> => {
     try {
       const { roomId } = req.body;
-      const userId = req.userId; // Assuming you set this in your auth middleware
+      const userId = req.userId;
+
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;
@@ -38,7 +63,7 @@ export class RoomController {
   public leaveRoom = async (req: Request, res: Response): Promise<void> => {
     try {
       const { roomId } = req.params;
-      const userId = req.userId; // Assuming you set this in your auth middleware
+      const userId = req.userId;
       if (!userId) {
         res.status(401).json({ error: "Unauthorized" });
         return;

@@ -3,37 +3,41 @@ import { rooms, users, roomParticipants } from "../db/schema";
 import { v4 as uuidv4 } from "uuid";
 import { eq, and } from "drizzle-orm/expressions";
 import { User, Room, CodeData } from "../types/types";
+import {
+  ProgrammingLanguage,
+  DEFAULT_LANGUAGE,
+} from "../constants/programmingLanguages";
 
 export class RoomService {
-  async createRoom(userId: string): Promise<Room> {
+  async createRoom(
+    userId: string,
+    name: string,
+    programmingLanguage: ProgrammingLanguage = DEFAULT_LANGUAGE
+  ): Promise<Room> {
     const roomId = uuidv4();
 
     const initialCodeData: CodeData = {
       content: "// Start coding here",
       lastEditedBy: null,
       lastEditedAt: null,
-      programmingLanguage: "JavaScript",
     };
 
-    await db.transaction(async tx => {
-      await tx.insert(rooms).values({
-        id: roomId,
-        ownerId: userId,
-        codeData: initialCodeData,
-      });
-
-      await tx.insert(roomParticipants).values({
-        roomId: roomId,
-        userId: userId,
-      });
+    await db.insert(rooms).values({
+      id: roomId,
+      name,
+      ownerId: userId,
+      programmingLanguage,
+      codeData: initialCodeData,
     });
 
     const owner = await this.getUserById(userId);
     return {
       roomId,
+      name,
       owner,
       participants: [owner],
       codeData: initialCodeData,
+      programmingLanguage,
     };
   }
 
@@ -93,6 +97,8 @@ export class RoomService {
         roomId: rooms.id,
         ownerId: rooms.ownerId,
         codeData: rooms.codeData,
+        name: rooms.name,
+        programmingLanguage: rooms.programmingLanguage,
       })
       .from(rooms)
       .where(eq(rooms.id, roomId))
@@ -123,8 +129,10 @@ export class RoomService {
     return {
       roomId: room.roomId,
       owner,
+      name: room.name,
       participants,
       codeData: room.codeData as CodeData,
+      programmingLanguage: room.programmingLanguage,
     };
   }
 
@@ -164,7 +172,6 @@ export class RoomService {
         codeData: {
           content,
           lastEditedAt: new Date().toISOString(),
-          programmingLanguage: currentCodeData.programmingLanguage,
           lastEditedBy: currentCodeData.lastEditedBy,
         },
       })

@@ -6,6 +6,10 @@ import {
   primaryKey,
   jsonb,
 } from "drizzle-orm/pg-core";
+import {
+  ProgrammingLanguage,
+  DEFAULT_LANGUAGE,
+} from "../constants/programmingLanguages";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -16,15 +20,19 @@ export const users = pgTable("users", {
 
 export const rooms = pgTable("rooms", {
   id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
   ownerId: uuid("owner_id")
     .notNull()
     .references(() => users.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  programmingLanguage: text("programming_language")
+    .notNull()
+    .$type<ProgrammingLanguage>()
+    .default(DEFAULT_LANGUAGE),
   codeData: jsonb("code_data").notNull().default({
     content: "// Start coding here",
     lastEditedBy: null,
     lastEditedAt: null,
-    programmingLanguage: "JavaScript",
   }),
 });
 
