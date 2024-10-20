@@ -1,18 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import axios from "axios";
 import { useDisclosure } from "@nextui-org/modal";
+import NewRoomModal from "./NewRoomModal";
 import JoinRoomModal from "./JoinRoomModal";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import { Plus, DoorOpen } from "lucide-react";
-import { Room } from "../../types/types";
-
-const API_URL = "http://localhost:3000/api";
+import { createRoom, joinRoom, setAuthToken } from "../../services/api";
 
 const Home = () => {
   const navigate = useNavigate();
   const { isAuthenticated, token } = useAuth();
+
+  const {
+    isOpen: isCreateOpen,
+    onOpen: onCreateOpen,
+    onOpenChange: onCreateOpenChange,
+  } = useDisclosure();
 
   const {
     isOpen: isJoinOpen,
@@ -20,36 +24,27 @@ const Home = () => {
     onOpenChange: onJoinOpenChange,
   } = useDisclosure();
 
-  const createRoom = async () => {
+  const handleCreateRoom = async (
+    roomName: string,
+    language: string = "javascript"
+  ) => {
     try {
-      const response = await axios.post<Room>(
-        `${API_URL}/rooms/create`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const room = response.data;
+      if (token) {
+        setAuthToken(token);
+      }
+      const room = await createRoom(roomName, language);
       navigate(`/room/${room.roomId}`);
     } catch (error) {
       console.error("Error creating room:", error);
     }
   };
 
-  const joinRoom = async (roomId: string) => {
+  const handleJoinRoom = async (roomId: string) => {
     try {
-      const response = await axios.post<Room>(
-        `${API_URL}/rooms/join`,
-        { roomId },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const room = response.data;
+      if (token) {
+        setAuthToken(token);
+      }
+      const room = await joinRoom(roomId);
       navigate(`/room/${room.roomId}`);
     } catch (error) {
       console.error("Error joining room:", error);
@@ -70,7 +65,7 @@ const Home = () => {
         </div>
         {isAuthenticated ? (
           <div className="flex items-stretch gap-5">
-            <Button startContent={<Plus size={20} />} onClick={createRoom}>
+            <Button startContent={<Plus size={20} />} onClick={onCreateOpen}>
               New Room
             </Button>
             <Button startContent={<DoorOpen size={20} />} onClick={onJoinOpen}>
@@ -83,11 +78,15 @@ const Home = () => {
             <Button onClick={() => navigate("/register")}>Register</Button>
           </div>
         )}
-
+        <NewRoomModal
+          isOpen={isCreateOpen}
+          onOpenChange={onCreateOpenChange}
+          onCreateRoom={handleCreateRoom}
+        />
         <JoinRoomModal
           isOpen={isJoinOpen}
           onOpenChange={onJoinOpenChange}
-          onJoinRoom={joinRoom}
+          onJoinRoom={handleJoinRoom}
         />
       </div>
     </div>
