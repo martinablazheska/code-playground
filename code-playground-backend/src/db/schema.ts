@@ -34,6 +34,10 @@ export const rooms = pgTable("rooms", {
     lastEditedBy: null,
     lastEditedAt: null,
   }),
+  privacyType: text("privacy_type")
+    .notNull()
+    .default("public")
+    .$type<"private" | "invite-only" | "public">(),
 });
 
 export const roomParticipants = pgTable(

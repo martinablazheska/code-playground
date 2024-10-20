@@ -12,6 +12,7 @@ export interface CodeData {
 export interface Room {
   roomId: string;
   owner: User;
+  name: string;
   participants: User[];
   codeData: CodeData;
   programmingLanguage: string;

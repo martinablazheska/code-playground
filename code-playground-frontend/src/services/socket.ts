@@ -6,7 +6,8 @@ const SOCKET_URL = "http://localhost:3000";
 export const createSocketConnection = (
   roomId: string,
   token: string,
-  onRoomUpdate: (room: Room) => void
+  onRoomUpdate: (room: Room) => void,
+  onParticipantRemoved: (updatedRoom: Room) => void
 ): Socket => {
   const socket = io(SOCKET_URL, {
     transports: ["websocket", "polling"],
@@ -15,6 +16,9 @@ export const createSocketConnection = (
 
   socket.on("connect", () => console.log("connected ws"));
   socket.on("room:update", onRoomUpdate);
+  socket.on("participant_removed", (updatedRoom: Room) => {
+    onParticipantRemoved(updatedRoom);
+  });
   socket.emit("join", { roomId, token });
 
   return socket;

@@ -31,3 +31,19 @@ export const joinRoom = async (roomId: string): Promise<Room> => {
   const response = await api.post<Room>("/rooms/join", { roomId });
   return response.data;
 };
+
+export const removeParticipant = async (
+  roomId: string,
+  participantId: string,
+  token: string
+): Promise<Room> => {
+  const response = await api.delete<Room>(
+    `/rooms/${roomId}/participants/${participantId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
+};

@@ -5,11 +5,8 @@ import dotenv from "dotenv";
 import { Server as SocketIOServer } from "socket.io";
 import roomRoutes from "./routes/roomRoutes";
 import authRoutes from "./routes/authRoutes";
-import { RoomService } from "./services/roomService";
 import { setupSocketHandlers } from "./socket/socketHandlers";
 import { setupYjsWebsocketServer } from "./socket/yjs";
-
-const roomService = new RoomService();
 
 dotenv.config();
 

@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Room as RoomType } from "../types/types";
 import { fetchRoom } from "../services/api";
 import { createSocketConnection } from "../services/socket";
 import { useAuth } from "./useAuth";
+import { useNavigate } from "react-router-dom";
+import { Socket } from "socket.io-client";
 
 export const useRoom = (roomId: string) => {
   const [room, setRoom] = useState<RoomType | null>(null);
-  const { token } = useAuth();
+  const { token, username } = useAuth();
+  const navigate = useNavigate();
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     const loadRoom = async () => {
@@ -26,14 +30,40 @@ export const useRoom = (roomId: string) => {
   useEffect(() => {
     if (!roomId || !token) return;
 
-    const socket = createSocketConnection(roomId, token, setRoom);
+    const onParticipantRemoved = (updatedRoom: RoomType) => {
+      setRoom(updatedRoom);
+      // If the current user has been removed
+      if (
+        username &&
+        !updatedRoom.participants
+          .map(participant => participant.username)
+          .includes(username)
+      ) {
+        navigate("/");
+        console.log("You have been removed from the room");
+      }
+    };
+    socketRef.current = createSocketConnection(
+      roomId,
+      token,
+      setRoom,
+      onParticipantRemoved
+    );
 
     return () => {
-      socket.disconnect();
-      socket.off("connect");
-      socket.off("room:update");
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
-  }, [roomId, token]);
+  }, [roomId, token, navigate]);
 
-  return { room, setRoom };
+  const removeParticipant = (participantUsername: string) => {
+    socketRef.current?.emit("remove_participant", {
+      roomId,
+      participantUsername,
+    });
+    console.log("attempting to remove partiicpant");
+  };
+
+  return { room, setRoom, removeParticipant };
 };

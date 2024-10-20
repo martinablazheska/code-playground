@@ -33,6 +33,14 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
       }
     });
 
+    socket.on("remove_participant", async ({ roomId, participantUsername }) => {
+      const room = await roomService.removeParticipant(
+        roomId,
+        participantUsername
+      );
+      io.to(roomId).emit("participant_removed", room);
+    });
+
     socket.on("leave_room", async ({ roomId, userName }) => {
       await handleUserLeavingRoom(socket, io, roomId, userName);
     });

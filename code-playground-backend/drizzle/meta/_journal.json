@@ -43,6 +43,13 @@
       "when": 1729411527505,
       "tag": "0005_sparkling_tombstone",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1729418372481,
+      "tag": "0006_chemical_captain_stacy",
+      "breakpoints": true
     }
   ]
 }

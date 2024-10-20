@@ -22,6 +22,9 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
 }) => {
   const [roomName, setRoomName] = useState("");
   const [programmingLanguage, setProgrammingLanguage] = useState("javascript");
+  const [privacyType, setPrivacyType] = useState<
+    "private" | "invite-only" | "public"
+  >("public");
 
   const handleCreateRoom = () => {
     if (roomName) {

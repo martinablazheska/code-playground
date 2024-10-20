@@ -1,18 +1,26 @@
 import { db } from "../db";
 import { rooms, users, roomParticipants } from "../db/schema";
 import { v4 as uuidv4 } from "uuid";
-import { eq, and } from "drizzle-orm/expressions";
+import { eq, and, ne } from "drizzle-orm/expressions";
 import { User, Room, CodeData } from "../types/types";
 import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
 } from "../constants/programmingLanguages";
+import { AuthService } from "../services/authService";
 
 export class RoomService {
+  private authService: AuthService;
+
+  constructor() {
+    this.authService = new AuthService();
+  }
+
   async createRoom(
     userId: string,
     name: string,
-    programmingLanguage: ProgrammingLanguage = DEFAULT_LANGUAGE
+    programmingLanguage: ProgrammingLanguage = DEFAULT_LANGUAGE,
+    privacyType: "private" | "invite-only" | "public" = "public"
   ): Promise<Room> {
     const roomId = uuidv4();
 
@@ -28,6 +36,7 @@ export class RoomService {
       ownerId: userId,
       programmingLanguage,
       codeData: initialCodeData,
+      privacyType,
     });
 
     const owner = await this.getUserById(userId);
@@ -38,6 +47,7 @@ export class RoomService {
       participants: [owner],
       codeData: initialCodeData,
       programmingLanguage,
+      privacyType,
     };
   }
 
@@ -52,14 +62,23 @@ export class RoomService {
     }
 
     // Check if the room exists
-    const [roomExists] = await db
-      .select({ id: rooms.id })
+    const [room] = await db
+      .select()
       .from(rooms)
       .where(eq(rooms.id, roomId))
       .limit(1);
 
-    if (!roomExists) {
+    if (!room) {
       throw new Error("Room not found");
+    }
+
+    if (room.privacyType === "private" && room.ownerId !== userId) {
+      throw new Error("This room is private");
+    }
+
+    if (room.privacyType === "invite-only") {
+      // allow joining, implement approval later
+      console.log("Invite-only room: Owner approval required");
     }
 
     // Add the user to the room_participants table
@@ -99,6 +118,7 @@ export class RoomService {
         codeData: rooms.codeData,
         name: rooms.name,
         programmingLanguage: rooms.programmingLanguage,
+        privacyType: rooms.privacyType,
       })
       .from(rooms)
       .where(eq(rooms.id, roomId))
@@ -133,6 +153,7 @@ export class RoomService {
       participants,
       codeData: room.codeData as CodeData,
       programmingLanguage: room.programmingLanguage,
+      privacyType: room.privacyType,
     };
   }
 
@@ -179,5 +200,111 @@ export class RoomService {
         },
       })
       .where(eq(rooms.id, roomId));
+  }
+
+  async removeParticipant(
+    roomId: string,
+    participantUsername: string
+  ): Promise<Room> {
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .limit(1);
+
+    if (!room) {
+      throw new Error("Room not found");
+    }
+
+    // Find the user ID for the given username
+    const [user] = await db
+      .select({
+        id: users.id,
+      })
+      .from(users)
+      .where(eq(users.username, participantUsername))
+      .limit(1);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const participantId = user.id;
+
+    // Check if the participant is in the room
+    const [participant] = await db
+      .select()
+      .from(roomParticipants)
+      .where(
+        and(
+          eq(roomParticipants.roomId, roomId),
+          eq(roomParticipants.userId, participantId)
+        )
+      )
+      .limit(1);
+
+    if (!participant) {
+      throw new Error("Participant not found in the room");
+    }
+
+    // Remove the participant from the room
+    await db
+      .delete(roomParticipants)
+      .where(
+        and(
+          eq(roomParticipants.roomId, roomId),
+          eq(roomParticipants.userId, participantId)
+        )
+      );
+
+    return this.getRoom(roomId);
+  }
+
+  async clearRoomAndSetPrivate(roomId: string, userId: string): Promise<Room> {
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .limit(1);
+
+    if (!room) {
+      throw new Error("Room not found");
+    }
+
+    if (room.ownerId !== userId) {
+      throw new Error(
+        "Only the room owner can clear the room and set it to private"
+      );
+    }
+
+    // Get all participants except the owner
+    const participants = await db
+      .select()
+      .from(roomParticipants)
+      .where(
+        and(
+          eq(roomParticipants.roomId, roomId),
+          ne(roomParticipants.userId, userId)
+        )
+      );
+
+    // Remove all participants except the owner
+    await db
+      .delete(roomParticipants)
+      .where(
+        and(
+          eq(roomParticipants.roomId, roomId),
+          ne(roomParticipants.userId, userId)
+        )
+      );
+
+    // Set the room to private
+    await db
+      .update(rooms)
+      .set({ privacyType: "private" })
+      .where(eq(rooms.id, roomId));
+
+    // Fetch the updated room data
+    return this.getRoom(roomId);
   }
 }

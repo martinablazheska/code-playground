@@ -17,7 +17,7 @@ export class RoomController {
         return;
       }
 
-      const { name, programmingLanguage } = req.body;
+      const { name, programmingLanguage, privacyType } = req.body;
 
       if (!name || typeof name !== "string") {
         res
@@ -35,7 +35,20 @@ export class RoomController {
         language = programmingLanguage as ProgrammingLanguage;
       }
 
-      const room = await roomService.createRoom(userId, name, language);
+      let privacy: "private" | "invite-only" | "public" = "public";
+      if (
+        privacyType &&
+        ["private", "invite-only", "public"].includes(privacyType)
+      ) {
+        privacy = privacyType as "private" | "invite-only" | "public";
+      }
+
+      const room = await roomService.createRoom(
+        userId,
+        name,
+        language,
+        privacy
+      );
       res.status(201).json(room);
     } catch (error) {
       console.error("Error creating room:", error);
