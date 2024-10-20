@@ -83,5 +83,16 @@ export const useRoom = (roomId: string) => {
     socketRef.current?.emit("update_code_content", { roomId, content });
   };
 
-  return { room, setRoom, removeParticipant, lockRoom, updateCodeContent };
+  const runCode = (content: string) => {
+    socketRef.current?.emit("run_code", { roomId, content });
+  };
+
+  return {
+    room,
+    setRoom,
+    removeParticipant,
+    lockRoom,
+    updateCodeContent,
+    runCode,
+  };
 };

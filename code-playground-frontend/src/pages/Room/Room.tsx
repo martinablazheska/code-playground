@@ -9,14 +9,13 @@ import { setupYjs } from "../../services/yjs";
 import { editorTheme } from "../../theme/editorTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "@nextui-org/button";
-import { Lock, X } from "lucide-react";
+import { Lock, X, Play } from "lucide-react";
 import { debounce } from "lodash";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
-  const { room, removeParticipant, lockRoom, updateCodeContent } = useRoom(
-    roomId!
-  );
+  const { room, removeParticipant, lockRoom, updateCodeContent, runCode } =
+    useRoom(roomId!);
   const { username } = useAuth();
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -69,25 +68,39 @@ const Room: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Header />
-      <div className="flex flex-col p-4">
-        <div className="flex flex-row items-center gap-2">
-          <div className="font-semibold">{room.name}</div>
-          {room.owner.username === username && (
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              className="text-white"
-              radius="full"
-              onClick={lockRoom}
-            >
-              <Lock size={15} />
-            </Button>
-          )}
+      <div className="flex w-3/4 items-center justify-between">
+        <div className="flex flex-col p-4">
+          <div className="flex flex-row items-center gap-2">
+            <div className="font-semibold">{room.name}</div>
+            {room.owner.username === username && (
+              <Button
+                isIconOnly
+                variant="light"
+                size="sm"
+                className="text-white"
+                radius="full"
+                onClick={lockRoom}
+              >
+                <Lock size={15} />
+              </Button>
+            )}
+          </div>
+          <div className="text-sm text-zinc-400 tracking-wider">
+            {room.owner.username}'s code room ({room.programmingLanguage})
+          </div>
         </div>
-        <div className="text-sm text-zinc-400 tracking-wider">
-          {room.owner.username}'s code room ({room.programmingLanguage})
-        </div>
+        <Button
+          className="mr-2 text-white bg-red-900 font-semibold"
+          onClick={() => {
+            const codeContent = editorRef.current?.getValue();
+            if (codeContent) {
+              runCode(codeContent);
+            }
+          }}
+        >
+          <Play size={15} fill="#fff" />
+          <span>Run</span>
+        </Button>
       </div>
       <div className="flex-1 flex items-stretch justify-between px-4 gap-5">
         <div className="h-[95%] w-3/4 rounded-lg bg-zinc-800 p-4">
