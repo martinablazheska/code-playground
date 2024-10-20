@@ -7,13 +7,13 @@ import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
 } from "../types/programmingLanguages";
-import { AuthService } from "../services/authService";
+import { Judge0Service } from "../services/judge0Service";
 
 export class RoomService {
-  private authService: AuthService;
+  private judge0Service: Judge0Service;
 
   constructor() {
-    this.authService = new AuthService();
+    this.judge0Service = new Judge0Service();
   }
 
   async createRoom(
@@ -289,5 +289,23 @@ export class RoomService {
 
     // Fetch the updated room data
     return this.getRoom(roomId);
+  }
+
+  async runCode(roomId: string): Promise<any> {
+    const room = await this.getRoom(roomId);
+    const { content } = room.codeData;
+
+    const submissionToken = await this.judge0Service.submitCode(
+      room.programmingLanguage,
+      content
+    );
+
+    // Wait for a short time to allow the code to be processed
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const result = await this.judge0Service.getSubmissionResult(
+      submissionToken
+    );
+    return result;
   }
 }
