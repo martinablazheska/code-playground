@@ -13,7 +13,7 @@ import { Lock, X } from "lucide-react";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
-  const { room, removeParticipant } = useRoom(roomId!);
+  const { room, removeParticipant, lockRoom } = useRoom(roomId!);
   const { username } = useAuth();
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -56,6 +56,7 @@ const Room: React.FC = () => {
               size="sm"
               className="text-white"
               radius="full"
+              onClick={lockRoom}
             >
               <Lock size={15} />
             </Button>

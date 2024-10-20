@@ -260,7 +260,7 @@ export class RoomService {
     return this.getRoom(roomId);
   }
 
-  async clearRoomAndSetPrivate(roomId: string, userId: string): Promise<Room> {
+  async clearRoomAndSetPrivate(roomId: string): Promise<Room> {
     const [room] = await db
       .select()
       .from(rooms)
@@ -271,30 +271,13 @@ export class RoomService {
       throw new Error("Room not found");
     }
 
-    if (room.ownerId !== userId) {
-      throw new Error(
-        "Only the room owner can clear the room and set it to private"
-      );
-    }
-
-    // Get all participants except the owner
-    const participants = await db
-      .select()
-      .from(roomParticipants)
-      .where(
-        and(
-          eq(roomParticipants.roomId, roomId),
-          ne(roomParticipants.userId, userId)
-        )
-      );
-
     // Remove all participants except the owner
     await db
       .delete(roomParticipants)
       .where(
         and(
           eq(roomParticipants.roomId, roomId),
-          ne(roomParticipants.userId, userId)
+          ne(roomParticipants.userId, room.ownerId)
         )
       );
 

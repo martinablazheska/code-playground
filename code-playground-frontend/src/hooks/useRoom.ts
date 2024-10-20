@@ -43,11 +43,21 @@ export const useRoom = (roomId: string) => {
         console.log("You have been removed from the room");
       }
     };
+
+    const onLockRoom = (updatedRoom: RoomType) => {
+      setRoom(updatedRoom);
+      if (username !== updatedRoom.owner.username) {
+        navigate("/");
+        console.log("You have been removed from the room");
+      }
+    };
+
     socketRef.current = createSocketConnection(
       roomId,
       token,
       setRoom,
-      onParticipantRemoved
+      onParticipantRemoved,
+      onLockRoom
     );
 
     return () => {
@@ -65,5 +75,9 @@ export const useRoom = (roomId: string) => {
     console.log("attempting to remove partiicpant");
   };
 
-  return { room, setRoom, removeParticipant };
+  const lockRoom = () => {
+    socketRef.current?.emit("lock_room", { roomId });
+  };
+
+  return { room, setRoom, removeParticipant, lockRoom };
 };
