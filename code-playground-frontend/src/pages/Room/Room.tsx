@@ -10,24 +10,47 @@ import { editorTheme } from "../../theme/editorTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "@nextui-org/button";
 import { Lock, X } from "lucide-react";
+import { debounce } from "lodash";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
-  const { room, removeParticipant, lockRoom } = useRoom(roomId!);
+  const { room, removeParticipant, lockRoom, updateCodeContent } = useRoom(
+    roomId!
+  );
   const { username } = useAuth();
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
+
+  // Create a debounced version of updateCodeContent
+  const debouncedUpdateCodeContent = useCallback(
+    debounce((content: string) => {
+      if (roomId) {
+        updateCodeContent(content);
+      }
+    }, 1000),
+    [roomId, updateCodeContent]
+  );
 
   useEffect(() => {
     if (isEditorReady && editorRef.current && roomId) {
       const { binding, provider } = setupYjs(roomId, editorRef.current);
 
+      // Set up the change event listener
+      const disposable = editorRef.current.onDidChangeModelContent(() => {
+        const content = editorRef.current?.getValue();
+        if (content !== undefined) {
+          debouncedUpdateCodeContent(content);
+        }
+      });
+
       return () => {
         binding.destroy();
         provider.disconnect();
+        disposable.dispose(); // Clean up the event listener
+        debouncedUpdateCodeContent.cancel(); // Cancel any pending debounced calls
       };
     }
-  }, [roomId, isEditorReady]);
+  }, [roomId, isEditorReady, debouncedUpdateCodeContent]);
 
   const handleEditorDidMount = useCallback(
     (editor: editor.IStandaloneCodeEditor, monaco) => {

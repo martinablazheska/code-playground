@@ -56,6 +56,10 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
         await handleUserLeavingRoom(socket, io, currentRoomId, userId, true);
       }
     });
+
+    socket.on("update_code_content", async ({ roomId, content }) => {
+      await roomService.updateRoomCodeData(roomId, content);
+    });
   });
 };
 
