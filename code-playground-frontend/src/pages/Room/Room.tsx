@@ -58,17 +58,24 @@ const Room: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col">
       <Header />
-      <div className="flex flex-row items-center gap-2 px-4 py-6">
-        <div className="font-semibold">{room.owner.username}'s code room</div>
-        <Button
-          isIconOnly
-          variant="light"
-          size="sm"
-          className="text-white"
-          radius="full"
-        >
-          <Lock size={15} />
-        </Button>
+      <div className="flex flex-col p-4">
+        <div className="flex flex-row items-center gap-2">
+          <div className="font-semibold">{room.name}</div>
+          {room.owner.username === username && (
+            <Button
+              isIconOnly
+              variant="light"
+              size="sm"
+              className="text-white"
+              radius="full"
+            >
+              <Lock size={15} />
+            </Button>
+          )}
+        </div>
+        <div className="text-sm text-zinc-400 tracking-wider">
+          {room.owner.username}'s code room
+        </div>
       </div>
       <div className="flex-1 flex items-stretch justify-between px-4 gap-5">
         <div className="h-[95%] w-3/4 rounded-lg bg-zinc-800 p-4">
@@ -106,21 +113,26 @@ const Room: React.FC = () => {
               .map(participant => (
                 <div
                   key={participant.id}
-                  className="w-full flex items-center gap-4 "
+                  className="w-full flex items-center justify-between"
                 >
-                  <Avatar username={participant.username} />
-                  <span>
-                    {participant.username}{" "}
-                    {participant.username === room.owner.username && "(Owner)"}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <Avatar username={participant.username} />
+                    <span>
+                      {participant.username}{" "}
+                      {participant.username === room.owner.username &&
+                        "(Owner)"}
+                    </span>
+                  </div>
                   {username === room.owner.username && (
                     <Button
                       isIconOnly
                       onClick={() =>
                         handleRemoveParticipant(participant.username)
                       }
+                      size="sm"
                       radius="full"
                       variant="light"
+                      className="text-white"
                     >
                       <X size={15} />
                     </Button>
