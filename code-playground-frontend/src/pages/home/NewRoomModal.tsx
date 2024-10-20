@@ -7,7 +7,10 @@ import {
   ModalFooter,
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/input";
+import { Select, SelectItem } from "@nextui-org/select";
 import Button from "../../components/Button";
+
+const programmingLanguages = ["JavaScript", "TypeScript", "Java", "Python"];
 
 interface NewRoomModalProps {
   isOpen: boolean;
@@ -21,10 +24,10 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
   onCreateRoom,
 }) => {
   const [roomName, setRoomName] = useState("");
-  const [programmingLanguage, setProgrammingLanguage] = useState("javascript");
-  const [privacyType, setPrivacyType] = useState<
-    "private" | "invite-only" | "public"
-  >("public");
+  const [programmingLanguage, setProgrammingLanguage] = useState("JavaScript");
+  // const [privacyType, setPrivacyType] = useState<"invite-only" | "public">(
+  //   "public"
+  // );
 
   const handleCreateRoom = () => {
     if (roomName) {
@@ -63,9 +66,33 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
                 input:
                   "text-white group-data-[has-value=true]:text-white group-data-[focus=true]",
                 label:
-                  "text-white group-data-[filled-within=true]:text-white placeholder:text-white",
+                  "text-zinc-400 group-data-[filled-within=true]:text-zinc-400 placeholder:text-zinc-400",
               }}
             />
+            <Select
+              required
+              selectionMode="single"
+              label="Select programming language"
+              classNames={{
+                trigger: "bg-zinc-800 data-[hover=true]:bg-zinc-800 text-white",
+                value: "text-white group-data-[has-value=true]:text-white",
+                label:
+                  "text-zinc-400 group-data-[has-value=true]:text-zinc-400 group-data-[filled=true]:text-zinc-400",
+                popoverContent: "bg-zinc-800",
+              }}
+            >
+              {programmingLanguages.map((language, index) => (
+                <SelectItem
+                  key={index}
+                  onClick={() => setProgrammingLanguage(language)}
+                  classNames={{
+                    base: "data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white data-[selectable=true]:focus:bg-zinc-700 data-[selectable=true]:focus:text-white",
+                  }}
+                >
+                  {language}
+                </SelectItem>
+              ))}
+            </Select>
           </div>
         </ModalBody>
         <ModalFooter>
