@@ -287,6 +287,33 @@ export class RoomService {
     return this.getRoom(roomId);
   }
 
+  async setRoomPublic(roomId: string, ownerId: string): Promise<Room> {
+    // Get current room from database
+    const [room] = await db
+      .select()
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .limit(1);
+
+    if (!room) {
+      throw new Error("Room not found");
+    }
+
+    // Check if the provided ownerId matches the room's ownerId
+    if (room.ownerId !== ownerId) {
+      throw new Error("Only the room owner can remove participants");
+    }
+
+    // Set the room to private
+    await db
+      .update(rooms)
+      .set({ privacyType: "public" })
+      .where(eq(rooms.id, roomId));
+
+    // Fetch the updated room data
+    return this.getRoom(roomId);
+  }
+
   async runCode(roomId: string): Promise<any> {
     // Get current room from database
     const room = await this.getRoom(roomId);

@@ -47,6 +47,12 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
       io.to(roomId).emit("room_locked", room);
     });
 
+    socket.on("unlock_room", async ({ roomId, token }) => {
+      userId = authService.getUserId(token);
+      const room = await roomService.setRoomPublic(roomId, userId);
+      io.to(roomId).emit("room_unlocked", room);
+    });
+
     socket.on("leave_room", async ({ roomId, userName }) => {
       await handleUserLeavingRoom(socket, io, roomId, userName);
     });

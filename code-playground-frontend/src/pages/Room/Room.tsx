@@ -89,7 +89,7 @@ const Room: React.FC = () => {
         <div className="h-full w-3/4 flex flex-col items-stretch gap-3">
           <div className="flex justify-between items-center">
             <div className="w-full">
-              <div className="flex w-full flex-row items-center gap-2">
+              <div className="flex w-full flex-row items-center gap-2 h-10">
                 <div className="font-semibold">{room.name}</div>
                 {showShareLink && (
                   <TooltipButton

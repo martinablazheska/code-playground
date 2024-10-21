@@ -23,6 +23,9 @@ export const createSocketConnection = (
   socket.on("room_locked", (updatedRoom: Room) => {
     onRoomUpdate(updatedRoom);
   });
+  socket.on("room_unlocked", (updatedRoom: Room) => {
+    onRoomUpdate(updatedRoom);
+  });
   socket.on("code_output", (codeOutput: { stdout: string }) => {
     onConsoleUpdate(codeOutput);
   });

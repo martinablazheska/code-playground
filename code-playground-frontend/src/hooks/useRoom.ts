@@ -1,5 +1,4 @@
-import { useContext, useEffect, useRef, useCallback, useState } from "react";
-import { roomContext } from "../contexts/roomContext";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { Room as RoomType } from "../types/types";
 import { fetchRoom } from "../services/api";
 import { createSocketConnection } from "../services/socket";
@@ -8,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
 export const useRoom = (roomId: string) => {
-  const { room, setRoom } = useContext(roomContext);
+  const [room, setRoom] = useState<RoomType | null>(null);
   const { token, username } = useAuth();
   const [consoleEntries, setConsoleEntries] = useState<string[]>([]);
 
@@ -85,6 +84,10 @@ export const useRoom = (roomId: string) => {
     socketRef.current?.emit("lock_room", { roomId, token });
   };
 
+  const unlockRoom = () => {
+    socketRef.current?.emit("unlock_room", { roomId, token });
+  };
+
   const updateCodeContent = (content: string) => {
     socketRef.current?.emit("update_code_content", { roomId, content });
   };
@@ -98,6 +101,7 @@ export const useRoom = (roomId: string) => {
     setRoom,
     removeParticipant,
     lockRoom,
+    unlockRoom,
     updateCodeContent,
     runCode,
     consoleEntries,

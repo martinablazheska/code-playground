@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import RoomContextProvider from "./contexts/roomContext";
 import { NextUIProvider } from "@nextui-org/react";
 import { AuthProvider } from "./contexts/authContext";
 import Login from "./pages/auth/Login/Login";
@@ -30,9 +29,7 @@ function App() {
   return (
     <NextUIProvider>
       <AuthProvider>
-        <RoomContextProvider>
-          <RouterProvider router={router} />
-        </RoomContextProvider>
+        <RouterProvider router={router} />
       </AuthProvider>
     </NextUIProvider>
   );
