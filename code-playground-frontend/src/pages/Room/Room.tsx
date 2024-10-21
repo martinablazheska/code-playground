@@ -1,23 +1,23 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
-import { editor } from "monaco-editor";
-import Editor from "@monaco-editor/react";
-import Header from "../../components/Header";
 import { useRoom } from "../../hooks/useRoom";
 import { setupYjs } from "../../services/yjs";
-import { editorTheme } from "../../theme/editorTheme";
 import { useAuth } from "../../hooks/useAuth";
-import { Button } from "@nextui-org/button";
-import { Play, Link } from "lucide-react";
 import { debounce } from "lodash";
+import Editor from "@monaco-editor/react";
+import Header from "../../components/Header";
 import TooltipButton from "../../components/TooltipButton";
 import Participants from "../../components/Participants";
 import OutputConsole from "../../components/OutputConsole";
+import Button from "../../components/Button";
+import { Play, Link } from "lucide-react";
+import { editorTheme } from "../../theme/editorTheme";
+import { editor } from "monaco-editor";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
   const { room, updateCodeContent, runCode } = useRoom(roomId!);
-  const { username, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -65,7 +65,11 @@ const Room: React.FC = () => {
     []
   );
 
-  const handleCopyLink = () => {};
+  const handleCopyLink = () => {
+    if (roomId) {
+      navigator.clipboard.writeText(roomId);
+    }
+  };
 
   const showShareLink = room?.privacyType === "public";
   if (!isAuthenticated) {
@@ -103,7 +107,6 @@ const Room: React.FC = () => {
               </div>
             </div>
             <Button
-              className="text-white bg-red-900 font-semibold"
               onClick={() => {
                 const codeContent = editorRef.current?.getValue();
                 if (codeContent) {
