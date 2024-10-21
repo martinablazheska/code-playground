@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { editor } from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import Header from "../../components/Header";
@@ -16,7 +16,8 @@ import Participants from "../../components/Participants";
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
   const { room, updateCodeContent, runCode } = useRoom(roomId!);
-  const { username } = useAuth();
+  const { username, isAuthenticated } = useAuth();
+
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
 
@@ -69,6 +70,10 @@ const Room: React.FC = () => {
       : room?.owner.username === username
       ? true
       : false;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   if (!room) {
     return <div>Loading...</div>;
