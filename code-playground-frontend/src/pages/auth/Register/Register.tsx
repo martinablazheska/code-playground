@@ -75,9 +75,9 @@ const Register: React.FC = () => {
                       errorMessage={touched.username && errors.username}
                       classNames={{
                         inputWrapper:
-                          "bg-zinc-700 data-[hover=true]:bg-zinc-700 group-data-[focus=true]:bg-zinc-700",
+                          "bg-zinc-700 data-[hover=true]:bg-zinc-700 group-data-[focus=true]:bg-zinc-700  group-data-[hover=true]:!bg-zinc-700 group-data-[focus=true]:!bg-zinc-700 !bg-zinc-700",
                         input:
-                          "text-white group-data-[has-value=true]:text-white group-data-[focus=true]",
+                          "text-white group-data-[has-value=true]:text-white group-data-[focus=true] relative",
                         label:
                           "text-white group-data-[filled-within=true]:text-white placeholder:text-white",
                       }}
@@ -98,9 +98,9 @@ const Register: React.FC = () => {
                       errorMessage={touched.password && errors.password}
                       classNames={{
                         inputWrapper:
-                          "bg-zinc-700 data-[hover=true]:bg-zinc-700 group-data-[focus=true]:bg-zinc-700",
+                          "bg-zinc-700 data-[hover=true]:bg-zinc-700 group-data-[focus=true]:bg-zinc-700  group-data-[hover=true]:!bg-zinc-700 group-data-[focus=true]:!bg-zinc-700 !bg-zinc-700",
                         input:
-                          "text-white group-data-[has-value=true]:text-white group-data-[focus=true]",
+                          "text-white group-data-[has-value=true]:text-white group-data-[focus=true] relative",
                         label:
                           "text-white group-data-[filled-within=true]:text-white placeholder:text-white",
                       }}
