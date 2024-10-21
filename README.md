@@ -118,3 +118,13 @@ The project consists of two main components:
    - Create a dashboard for users to manage their rooms and activities
    - Add support for more programming languages
    - Awareness - show cursors of each user with a dedicated color
+   - Show time stamps on the console entries (and maybe the author of the run too)
+   - Show a loading indicator while waiting for run output
+
+5. Design
+
+   - Improve home page
+
+## Bugs
+
+1. Create new room dialogue: Prevent room from being created if no language is selected instead of defaulting to JavaScript.
