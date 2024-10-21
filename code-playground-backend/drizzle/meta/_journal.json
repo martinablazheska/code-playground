@@ -50,6 +50,13 @@
       "when": 1729418372481,
       "tag": "0006_chemical_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1729498911669,
+      "tag": "0007_loose_inhumans",
+      "breakpoints": true
     }
   ]
 }

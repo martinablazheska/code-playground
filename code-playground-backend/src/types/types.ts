@@ -18,5 +18,5 @@ export interface Room {
   participants: User[];
   codeData: CodeData;
   programmingLanguage: ProgrammingLanguage;
-  privacyType: "private" | "invite-only" | "public";
+  privacyType: "private" | "public";
 }

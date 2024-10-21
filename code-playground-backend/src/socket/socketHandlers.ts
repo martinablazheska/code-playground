@@ -42,7 +42,7 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
     });
 
     socket.on("lock_room", async ({ roomId }) => {
-      const room = await roomService.clearRoomAndSetPrivate(roomId);
+      const room = await roomService.setRoomPrivate(roomId);
       io.to(roomId).emit("room_locked", room);
     });
 

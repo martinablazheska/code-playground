@@ -20,7 +20,7 @@ export class RoomService {
     userId: string,
     name: string,
     programmingLanguage: ProgrammingLanguage = DEFAULT_LANGUAGE,
-    privacyType: "private" | "invite-only" | "public" = "public"
+    privacyType: "private" | "public" = "public"
   ): Promise<Room> {
     const roomId = uuidv4();
 
@@ -74,11 +74,6 @@ export class RoomService {
 
     if (room.privacyType === "private" && room.ownerId !== userId) {
       throw new Error("This room is private");
-    }
-
-    if (room.privacyType === "invite-only") {
-      // allow joining, implement approval later
-      console.log("Invite-only room: Owner approval required");
     }
 
     // Add the user to the room_participants table
@@ -260,7 +255,7 @@ export class RoomService {
     return this.getRoom(roomId);
   }
 
-  async clearRoomAndSetPrivate(roomId: string): Promise<Room> {
+  async setRoomPrivate(roomId: string): Promise<Room> {
     const [room] = await db
       .select()
       .from(rooms)
@@ -270,16 +265,6 @@ export class RoomService {
     if (!room) {
       throw new Error("Room not found");
     }
-
-    // Remove all participants except the owner
-    await db
-      .delete(roomParticipants)
-      .where(
-        and(
-          eq(roomParticipants.roomId, roomId),
-          ne(roomParticipants.userId, room.ownerId)
-        )
-      );
 
     // Set the room to private
     await db

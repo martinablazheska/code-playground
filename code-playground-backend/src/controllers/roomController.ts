@@ -35,12 +35,9 @@ export class RoomController {
         language = programmingLanguage as ProgrammingLanguage;
       }
 
-      let privacy: "private" | "invite-only" | "public" = "public";
-      if (
-        privacyType &&
-        ["private", "invite-only", "public"].includes(privacyType)
-      ) {
-        privacy = privacyType as "private" | "invite-only" | "public";
+      let privacy: "private" | "public" = "public";
+      if (privacyType && ["private", "public"].includes(privacyType)) {
+        privacy = privacyType as "private" | "public";
       }
 
       const room = await roomService.createRoom(

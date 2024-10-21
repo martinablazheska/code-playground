@@ -1,0 +1,1 @@
+ALTER TABLE "rooms" ALTER COLUMN "programming_language" SET DEFAULT 'JavaScript';
