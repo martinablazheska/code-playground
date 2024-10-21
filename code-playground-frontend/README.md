@@ -45,8 +45,8 @@ This is the frontend for the Code Playground application (Code Dojo), a real-tim
 1. Clone the repository:
 
    ```
-   git clone https://github.com/your-username/code-dojo-frontend.git
-   cd code-dojo-frontend
+   git clone https://github.com/martinablazheska/code-playground
+   cd code-playground-frontend
    ```
 
 2. Install dependencies:

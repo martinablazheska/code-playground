@@ -27,6 +27,12 @@ This is the backend server for the Code Playground application (Code Dojo), a re
 ## Project Setup
 
 1. Clone the repository
+
+   ```
+   git clone https://github.com/martinablazheska/code-playground
+   cd code-playground-frontend
+   ```
+
 2. Install dependencies:
    ```
    npm install
