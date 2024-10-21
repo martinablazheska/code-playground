@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
-import Header from "../../../components/Header";
-import AuthForm from "../../../components/AuthForm";
+import { useAuth } from "@/hooks/useAuth";
+import Header from "@/components/Header";
+import AuthForm from "@/components/AuthForm";
 import { FormikHelpers } from "formik";
 
 const Login: React.FC = () => {
