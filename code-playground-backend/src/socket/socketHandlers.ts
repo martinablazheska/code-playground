@@ -28,16 +28,22 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
       }
     });
 
-    socket.on("remove_participant", async ({ roomId, participantUsername }) => {
-      const room = await roomService.removeParticipant(
-        roomId,
-        participantUsername
-      );
-      io.to(roomId).emit("participant_removed", room);
-    });
+    socket.on(
+      "remove_participant",
+      async ({ roomId, participantId, token }) => {
+        userId = authService.getUserId(token);
+        const room = await roomService.removeParticipant(
+          roomId,
+          participantId,
+          userId
+        );
+        io.to(roomId).emit("participant_removed", room);
+      }
+    );
 
-    socket.on("lock_room", async ({ roomId }) => {
-      const room = await roomService.setRoomPrivate(roomId);
+    socket.on("lock_room", async ({ roomId, token }) => {
+      userId = authService.getUserId(token);
+      const room = await roomService.setRoomPrivate(roomId, userId);
       io.to(roomId).emit("room_locked", room);
     });
 
@@ -52,6 +58,7 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
       }
     });
 
+    // Improvement: update the room from a single socket (which one?)
     socket.on("update_code_content", async ({ roomId, content }) => {
       await roomService.updateRoomCodeData(roomId, content);
     });

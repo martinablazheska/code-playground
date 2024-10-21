@@ -211,7 +211,8 @@ export class RoomService {
 
   async removeParticipant(
     roomId: string,
-    participantUsername: string
+    participantId: string,
+    ownerId: string
   ): Promise<Room> {
     // Get current room from database
     const [room] = await db
@@ -224,20 +225,10 @@ export class RoomService {
       throw new Error("Room not found");
     }
 
-    // Find the user ID for the given username
-    const [user] = await db
-      .select({
-        id: users.id,
-      })
-      .from(users)
-      .where(eq(users.username, participantUsername))
-      .limit(1);
-
-    if (!user) {
-      throw new Error("User not found");
+    // Check if the provided ownerId matches the room's ownerId
+    if (room.ownerId !== ownerId) {
+      throw new Error("Only the room owner can remove participants");
     }
-
-    const participantId = user.id;
 
     // Check if the participant is in the room
     const [participant] = await db
@@ -265,10 +256,11 @@ export class RoomService {
         )
       );
 
+    // Return the updated room
     return this.getRoom(roomId);
   }
 
-  async setRoomPrivate(roomId: string): Promise<Room> {
+  async setRoomPrivate(roomId: string, ownerId: string): Promise<Room> {
     // Get current room from database
     const [room] = await db
       .select()
@@ -278,6 +270,11 @@ export class RoomService {
 
     if (!room) {
       throw new Error("Room not found");
+    }
+
+    // Check if the provided ownerId matches the room's ownerId
+    if (room.ownerId !== ownerId) {
+      throw new Error("Only the room owner can remove participants");
     }
 
     // Set the room to private
