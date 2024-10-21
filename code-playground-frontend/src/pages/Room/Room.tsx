@@ -20,7 +20,7 @@ const Room: React.FC = () => {
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
 
-  // Create a debounced version of updateCodeContent
+  // Create a debounced function to persist data to the server
   const debouncedUpdateCodeContent = useCallback(
     debounce((content: string) => {
       if (roomId) {
@@ -151,7 +151,7 @@ const Room: React.FC = () => {
                   {username === room.owner.username && (
                     <Button
                       isIconOnly
-                      onClick={() => removeParticipant(participant.username)}
+                      onClick={() => removeParticipant(participant.id)}
                       size="sm"
                       radius="full"
                       variant="light"

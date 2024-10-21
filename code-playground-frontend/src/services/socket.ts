@@ -7,8 +7,7 @@ export const createSocketConnection = (
   roomId: string,
   token: string,
   onRoomUpdate: (room: Room) => void,
-  onParticipantRemoved: (updatedRoom: Room) => void,
-  onLockRoom: (updatedRoom: Room) => void
+  onParticipantRemoved: (updatedRoom: Room) => void
 ): Socket => {
   const socket = io(SOCKET_URL, {
     transports: ["websocket", "polling"],
@@ -21,7 +20,7 @@ export const createSocketConnection = (
     onParticipantRemoved(updatedRoom);
   });
   socket.on("room_locked", (updatedRoom: Room) => {
-    onLockRoom(updatedRoom);
+    onRoomUpdate(updatedRoom);
   });
   socket.emit("join", { roomId, token });
 
