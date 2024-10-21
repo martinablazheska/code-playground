@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const API_URL = "http://localhost:3000/api";
 
@@ -16,16 +16,16 @@ export const authContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-//using localStorage for now
+//using sessionStorage for now
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token")
+    sessionStorage.getItem("token")
   );
   const [username, setUsername] = useState<string | null>(
-    localStorage.getItem("username")
+    sessionStorage.getItem("username")
   );
 
   const login = async (username: string, password: string) => {
@@ -37,11 +37,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { token } = response.data;
       setToken(token);
       setUsername(username);
-      localStorage.setItem("token", token);
-      localStorage.setItem("username", username);
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("username", username);
     } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<{ error: string }>;
+        if (axiosError.response) {
+          throw new Error(axiosError.response.data.error || "Login failed");
+        }
+      }
+      throw new Error("An unexpected error occurred");
     }
   };
 
@@ -54,19 +59,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const { token } = response.data;
       setToken(token);
       setUsername(username);
-      localStorage.setItem("token", token);
-      localStorage.setItem("username", username);
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("username", username);
     } catch (error) {
-      console.error("Registration failed:", error);
-      throw error;
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<{ error: string }>;
+        if (axiosError.response) {
+          throw new Error(axiosError.response.data.error || "Login failed");
+        }
+      }
+      throw new Error("An unexpected error occurred");
     }
   };
 
   const logout = () => {
     setToken(null);
     setUsername(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("username");
   };
 
   const isAuthenticated = !!token;
