@@ -67,13 +67,7 @@ const Room: React.FC = () => {
 
   const handleCopyLink = () => {};
 
-  const showShareLink =
-    room?.privacyType === "private"
-      ? false
-      : room?.owner.username === username
-      ? true
-      : false;
-
+  const showShareLink = room?.privacyType === "public";
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
