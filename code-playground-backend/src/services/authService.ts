@@ -8,6 +8,20 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export class AuthService {
   async register(username: string, password: string) {
+    // Validate username
+    if (!this.isValidUsername(username)) {
+      throw new Error(
+        "Invalid username. Username must be 3-20 characters long and contain only letters, numbers, and underscores."
+      );
+    }
+
+    // Validate password
+    if (!this.isValidPassword(password)) {
+      throw new Error(
+        "Invalid password. Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [user] = await db
@@ -51,5 +65,16 @@ export class AuthService {
     } catch (error) {
       throw new Error("Invalid token");
     }
+  }
+
+  private isValidUsername(username: string): boolean {
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    return usernameRegex.test(username);
+  }
+
+  private isValidPassword(password: string): boolean {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
   }
 }
