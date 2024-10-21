@@ -1,8 +1,8 @@
 import React from "react";
 import { useRoom } from "../hooks/useRoom";
 import { useAuth } from "../hooks/useAuth";
-import Avatar from "./Avatar";
-import TooltipButton from "./TooltipButton";
+import Avatar from "@/components/Avatar";
+import TooltipButton from "@/components/TooltipButton";
 import { X, Lock, Unlock } from "lucide-react";
 
 const Participants: React.FC<{ roomId: string | undefined }> = ({ roomId }) => {

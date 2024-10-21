@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useDisclosure } from "@nextui-org/modal";
-import NewRoomModal from "../../components/NewRoomModal";
-import JoinRoomModal from "../../components/JoinRoomModal";
-import Header from "../../components/Header";
-import Button from "../../components/Button";
+import NewRoomModal from "@/components/NewRoomModal";
+import JoinRoomModal from "@/components/JoinRoomModal";
+import Header from "@/components/Header";
+import Button from "@/components/Button";
 import { Plus, DoorOpen } from "lucide-react";
-import { createRoom, joinRoom, setAuthToken } from "../../services/api";
+import { createRoom, joinRoom, setAuthToken } from "@/services/api";
 
 const Home = () => {
   const navigate = useNavigate();

@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { Input } from "@nextui-org/input";
-import Button from "./Button";
+import Button from "@/components/Button";
 import { Link } from "react-router-dom";
 
 interface AuthFormProps {

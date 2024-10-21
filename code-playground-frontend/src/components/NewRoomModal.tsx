@@ -9,9 +9,9 @@ import {
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
-import Button from "./Button";
+import Button from "@/components/Button";
 import { ButtonGroup } from "@nextui-org/button";
-import TooltipButton from "./TooltipButton";
+import TooltipButton from "@/components/TooltipButton";
 
 const availableProgrammingLanguages = [
   "JavaScript",

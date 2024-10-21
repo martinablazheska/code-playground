@@ -1,8 +1,8 @@
 import { useEffect, useRef, useCallback, useState } from "react";
-import { Room as RoomType } from "../types/types";
-import { fetchRoom } from "../services/api";
-import { createSocketConnection } from "../services/socket";
-import { useAuth } from "./useAuth";
+import { Room as RoomType } from "@/types/types";
+import { fetchRoom } from "@/services/api";
+import { createSocketConnection } from "@/services/socket";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 

@@ -1,10 +1,10 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { NextUIProvider } from "@nextui-org/react";
-import { AuthProvider } from "./contexts/authContext";
-import Login from "./pages/auth/Login/Login";
-import Register from "./pages/auth/Register/Register";
-import Home from "./pages/home/Home";
-import Room from "./pages/room/Room";
+import { AuthProvider } from "@/contexts/authContext";
+import Login from "@/pages/auth/Login/Login";
+import Register from "@/pages/auth/Register/Register";
+import Home from "@/pages/home/Home";
+import Room from "@/pages/room/Room";
 
 const router = createBrowserRouter([
   {

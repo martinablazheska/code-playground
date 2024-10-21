@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
-import { useRoom } from "../../hooks/useRoom";
-import { setupYjs } from "../../services/yjs";
-import { useAuth } from "../../hooks/useAuth";
+import { useRoom } from "@/hooks/useRoom";
+import { setupYjs } from "@/services/yjs";
+import { useAuth } from "@/hooks/useAuth";
 import { debounce } from "lodash";
 import Editor from "@monaco-editor/react";
-import Header from "../../components/Header";
-import TooltipButton from "../../components/TooltipButton";
-import Participants from "../../components/Participants";
-import OutputConsole from "../../components/OutputConsole";
-import Button from "../../components/Button";
+import Header from "@/components/Header";
+import TooltipButton from "@/components/TooltipButton";
+import Participants from "@/components/Participants";
+import OutputConsole from "@/components/OutputConsole";
+import Button from "@/components/Button";
 import { Play, Link as LinkIcon, ChevronLeft } from "lucide-react";
-import { editorTheme } from "../../theme/editorTheme";
+import { editorTheme } from "@/theme/editorTheme";
 import { editor } from "monaco-editor";
 
 const Room: React.FC = () => {

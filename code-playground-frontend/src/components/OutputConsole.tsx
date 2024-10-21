@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useRoom } from "../hooks/useRoom";
+import { useRoom } from "@/hooks/useRoom";
 import { ChevronRight } from "lucide-react";
 
 const OutputConsole: React.FC<{ roomId: string | undefined }> = ({
