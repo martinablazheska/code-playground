@@ -128,3 +128,7 @@ The project consists of two main components:
 ## Bugs
 
 1. Create new room dialogue: Prevent room from being created if no language is selected instead of defaulting to JavaScript.
+
+2. Join room dialogue: Show the user that the room has been set to private.
+
+3. Show a notification to the user when they are removed from a room.
