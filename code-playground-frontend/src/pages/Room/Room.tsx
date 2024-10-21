@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, Link } from "react-router-dom";
 import { useRoom } from "../../hooks/useRoom";
 import { setupYjs } from "../../services/yjs";
 import { useAuth } from "../../hooks/useAuth";
@@ -10,7 +10,7 @@ import TooltipButton from "../../components/TooltipButton";
 import Participants from "../../components/Participants";
 import OutputConsole from "../../components/OutputConsole";
 import Button from "../../components/Button";
-import { Play, Link } from "lucide-react";
+import { Play, Link as LinkIcon, ChevronLeft } from "lucide-react";
 import { editorTheme } from "../../theme/editorTheme";
 import { editor } from "monaco-editor";
 
@@ -84,8 +84,15 @@ const Room: React.FC = () => {
     <div className="min-h-screen w-screen">
       <Header />
       <div className="flex h-[calc(100%-64px)] items-stretch justify-between px-4 py-6 gap-5">
-        <div className="h-full w-3/4 flex flex-col items-stretch gap-3">
-          <div className="flex justify-between items-center">
+        <div className="h-full w-3/4 flex flex-col items-stretch ">
+          <Link
+            to="/"
+            className="flex items-center gap-1 text-sm text-zinc-500 underline"
+          >
+            <ChevronLeft size={14} />
+            <span>Home</span>
+          </Link>
+          <div className="flex justify-between items-center mb-2">
             <div className="w-full">
               <div className="flex w-full flex-row items-center gap-2 h-10">
                 <div className="font-semibold">{room.name}</div>
@@ -98,7 +105,7 @@ const Room: React.FC = () => {
                     radius="full"
                     onClick={handleCopyLink}
                   >
-                    <Link size={15} />
+                    <LinkIcon size={15} />
                   </TooltipButton>
                 )}
               </div>
