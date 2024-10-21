@@ -69,7 +69,7 @@ export const useRoom = (roomId: string) => {
         socketRef.current = null;
       }
     };
-  }, [roomId, token, navigate, onConsoleUpdate]);
+  }, [roomId, token, navigate, onConsoleUpdate, username]);
 
   const removeParticipant = (participantId: string) => {
     socketRef.current?.emit("remove_participant", {
