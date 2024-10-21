@@ -7,7 +7,7 @@ import {
   ModalFooter,
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/input";
-import Button from "../../components/Button";
+import Button from "./Button";
 
 interface JoinRoomModalProps {
   isOpen: boolean;

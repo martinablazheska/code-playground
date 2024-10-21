@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useDisclosure } from "@nextui-org/modal";
-import NewRoomModal from "./NewRoomModal";
-import JoinRoomModal from "./JoinRoomModal";
+import NewRoomModal from "../../components/NewRoomModal";
+import JoinRoomModal from "../../components/JoinRoomModal";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import { Plus, DoorOpen } from "lucide-react";

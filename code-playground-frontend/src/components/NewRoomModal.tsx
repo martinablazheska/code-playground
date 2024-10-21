@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
-import Button from "../../components/Button";
+import Button from "./Button";
 
 const programmingLanguages = ["JavaScript", "TypeScript", "Java", "Python"];
 

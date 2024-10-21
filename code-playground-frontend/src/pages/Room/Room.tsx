@@ -3,19 +3,19 @@ import { useParams } from "react-router-dom";
 import { editor } from "monaco-editor";
 import Editor from "@monaco-editor/react";
 import Header from "../../components/Header";
-import Avatar from "../../components/Avatar";
 import { useRoom } from "../../hooks/useRoom";
 import { setupYjs } from "../../services/yjs";
 import { editorTheme } from "../../theme/editorTheme";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "@nextui-org/button";
-import { Lock, X, Play } from "lucide-react";
+import { Play, Link } from "lucide-react";
 import { debounce } from "lodash";
+import TooltipButton from "../../components/TooltipButton";
+import Participants from "../../components/Participants";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
-  const { room, removeParticipant, lockRoom, updateCodeContent, runCode } =
-    useRoom(roomId!);
+  const { room, updateCodeContent, runCode } = useRoom(roomId!);
   const { username } = useAuth();
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const [isEditorReady, setIsEditorReady] = useState(false);
@@ -61,108 +61,82 @@ const Room: React.FC = () => {
     []
   );
 
+  const handleCopyLink = () => {};
+
+  const showShareLink =
+    room?.privacyType === "public"
+      ? true
+      : room?.owner.username === username
+      ? true
+      : false;
+
   if (!room) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col">
+    <div className="min-h-screen w-screen">
       <Header />
-      <div className="flex w-3/4 items-center justify-between">
-        <div className="flex flex-col p-4">
-          <div className="flex flex-row items-center gap-2">
-            <div className="font-semibold">{room.name}</div>
-            {room.owner.username === username && (
-              <Button
-                isIconOnly
-                variant="light"
-                size="sm"
-                className="text-white"
-                radius="full"
-                onClick={lockRoom}
-              >
-                <Lock size={15} />
-              </Button>
-            )}
-          </div>
-          <div className="text-sm text-zinc-400 tracking-wider">
-            {room.owner.username}'s code room ({room.programmingLanguage})
-          </div>
-        </div>
-        <Button
-          className="mr-2 text-white bg-red-900 font-semibold"
-          onClick={() => {
-            const codeContent = editorRef.current?.getValue();
-            if (codeContent) {
-              runCode(codeContent);
-            }
-          }}
-        >
-          <Play size={15} fill="#fff" />
-          <span>Run</span>
-        </Button>
-      </div>
-      <div className="flex-1 flex items-stretch justify-between px-4 gap-5">
-        <div className="h-[95%] w-3/4 rounded-lg bg-zinc-800 p-4">
-          <Editor
-            height="100%"
-            width="100%"
-            defaultLanguage={room.programmingLanguage.toLowerCase()}
-            language={room.programmingLanguage.toLowerCase()}
-            onMount={handleEditorDidMount}
-            defaultValue={room.codeData.content}
-            options={{
-              minimap: { enabled: false },
-              fontSize: 16,
-              formatOnPaste: true,
-              formatOnType: true,
-              automaticLayout: true,
-              wordWrap: "on",
-              tabSize: 2,
-              scrollBeyondLastLine: false,
-              lineNumbers: "on",
-            }}
-          />
-        </div>
-        <div className="h-[45%] flex-1 bg-zinc-800 rounded-lg py-4">
-          <div className="font-semibold text-md px-4 pb-2 border-b border-b-zinc-600">
-            Participants
-          </div>
-          <div className="p-4 text-sm overflow-y-scroll scrollbar-hide flex flex-col items-stretch gap-3">
-            <div className="w-full flex items-center gap-4">
-              <Avatar username={username} />
-              <span className="font-semibold">{username} (You)</span>
+      <div className="flex h-[calc(100%-64px)] items-stretch justify-between px-4 py-6 gap-5">
+        <div className="h-full w-3/4 flex flex-col items-stretch gap-3">
+          <div className="flex justify-between items-center">
+            <div className="w-full">
+              <div className="flex w-full flex-row items-center gap-2">
+                <div className="font-semibold">{room.name}</div>
+                {showShareLink && (
+                  <TooltipButton
+                    tooltip="Copy room ID and share with others"
+                    isIconOnly
+                    size="sm"
+                    className="text-white"
+                    radius="full"
+                    onClick={handleCopyLink}
+                  >
+                    <Link size={15} />
+                  </TooltipButton>
+                )}
+              </div>
+              <div className="text-zinc-300 tracking-wider text-sm">
+                {room.owner.username}'s room ({room.programmingLanguage})
+              </div>
             </div>
-            {room.participants
-              .filter(participant => participant.username !== username)
-              .map(participant => (
-                <div
-                  key={participant.id}
-                  className="w-full flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-4">
-                    <Avatar username={participant.username} />
-                    <span>
-                      {participant.username}{" "}
-                      {participant.username === room.owner.username &&
-                        "(Owner)"}
-                    </span>
-                  </div>
-                  {username === room.owner.username && (
-                    <Button
-                      isIconOnly
-                      onClick={() => removeParticipant(participant.id)}
-                      size="sm"
-                      radius="full"
-                      variant="light"
-                      className="text-white"
-                    >
-                      <X size={15} />
-                    </Button>
-                  )}
-                </div>
-              ))}
+            <Button
+              className="text-white bg-red-900 font-semibold"
+              onClick={() => {
+                const codeContent = editorRef.current?.getValue();
+                if (codeContent) {
+                  runCode(codeContent);
+                }
+              }}
+            >
+              <Play size={15} fill="#fff" />
+              <span>Run</span>
+            </Button>
           </div>
+          <div className="h-[70vh] w-full rounded-lg bg-zinc-800 p-4">
+            <Editor
+              height="100%"
+              width="100%"
+              defaultLanguage={room.programmingLanguage.toLowerCase()}
+              language={room.programmingLanguage.toLowerCase()}
+              onMount={handleEditorDidMount}
+              defaultValue={room.codeData.content}
+              options={{
+                minimap: { enabled: false },
+                fontSize: 16,
+                formatOnPaste: true,
+                formatOnType: true,
+                automaticLayout: true,
+                wordWrap: "on",
+                tabSize: 2,
+                scrollBeyondLastLine: false,
+                lineNumbers: "on",
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex-1 flex items-stretch justify-between ">
+          <Participants roomId={roomId} />
         </div>
       </div>
     </div>
