@@ -60,6 +60,13 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
     socket.on("update_code_content", async ({ roomId, content }) => {
       await roomService.updateRoomCodeData(roomId, content);
     });
+
+    socket.on("run_code", async ({ roomId, content }) => {
+      await roomService.updateRoomCodeData(roomId, content);
+      const output = await roomService.runCode(roomId);
+      io.to(roomId).emit("code_output", output);
+      console.log(output);
+    });
   });
 };
 

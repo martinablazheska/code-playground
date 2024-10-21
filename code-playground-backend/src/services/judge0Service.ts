@@ -5,23 +5,26 @@ const JUDGE0_API_KEY = process.env.JUDGE0_API_KEY;
 
 export class Judge0Service {
   async submitCode(language: string, sourceCode: string): Promise<string> {
+    const options = {
+      method: "POST",
+      url: `${JUDGE0_API_URL}/submissions`,
+      params: {
+        base64_encoded: "true",
+        wait: "false",
+        fields: "*",
+      },
+      headers: {
+        "x-rapidapi-key": JUDGE0_API_KEY,
+        "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+        "Content-Type": "application/json",
+      },
+      data: {
+        language_id: this.getLanguageId(language),
+        source_code: Buffer.from(sourceCode).toString("base64"),
+      },
+    };
     try {
-      const response = await axios.post(
-        `${JUDGE0_API_URL}/submissions`,
-        {
-          language_id: this.getLanguageId(language),
-          source_code: Buffer.from(sourceCode).toString("base64"),
-          stdin: "",
-        },
-        {
-          headers: {
-            "content-type": "application/json",
-            "X-RapidAPI-Key": JUDGE0_API_KEY,
-            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-          },
-        }
-      );
-
+      const response = await axios.request(options);
       return response.data.token;
     } catch (error) {
       console.error("Error submitting code to Judge0:", error);
@@ -30,17 +33,21 @@ export class Judge0Service {
   }
 
   async getSubmissionResult(token: string): Promise<any> {
-    try {
-      const response = await axios.get(
-        `${JUDGE0_API_URL}/submissions/${token}`,
-        {
-          headers: {
-            "X-RapidAPI-Key": JUDGE0_API_KEY,
-            "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-          },
-        }
-      );
+    const options = {
+      method: "GET",
+      url: `${JUDGE0_API_URL}/submissions/${token}`,
+      params: {
+        base64_encoded: "false",
+        fields: "*",
+      },
+      headers: {
+        "x-rapidapi-key": JUDGE0_API_KEY,
+        "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+      },
+    };
 
+    try {
+      const response = await axios.request(options);
       return response.data;
     } catch (error) {
       console.error("Error getting submission result from Judge0:", error);
@@ -57,6 +64,6 @@ export class Judge0Service {
       Python: 70,
     };
 
-    return languageMap[language.toLowerCase()];
+    return languageMap[language];
   }
 }
