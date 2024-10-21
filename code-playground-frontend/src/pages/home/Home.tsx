@@ -26,13 +26,14 @@ const Home = () => {
 
   const handleCreateRoom = async (
     roomName: string,
-    language: string = "javascript"
+    language: string,
+    privacyType: "public" | "private"
   ) => {
     try {
       if (token) {
         setAuthToken(token);
       }
-      const room = await createRoom(roomName, language);
+      const room = await createRoom(roomName, language, privacyType);
       navigate(`/room/${room.roomId}`);
     } catch (error) {
       console.error("Error creating room:", error);

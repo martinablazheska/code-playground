@@ -35,16 +35,11 @@ export class RoomController {
         language = programmingLanguage as ProgrammingLanguage;
       }
 
-      let privacy: "private" | "public" = "public";
-      if (privacyType && ["private", "public"].includes(privacyType)) {
-        privacy = privacyType as "private" | "public";
-      }
-
       const room = await roomService.createRoom(
         userId,
         name,
         language,
-        privacy
+        privacyType
       );
       res.status(201).json(room);
     } catch (error) {

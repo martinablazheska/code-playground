@@ -18,11 +18,13 @@ export const fetchRoom = async (roomId: string): Promise<Room> => {
 
 export const createRoom = async (
   roomName: string,
-  language: string = "javascript"
+  language: string,
+  privacyType: "private" | "public"
 ): Promise<Room> => {
   const response = await api.post<Room>("/rooms/create", {
     name: roomName,
     programmingLanguage: language,
+    privacyType: privacyType,
   });
   return response.data;
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import {
   Modal,
@@ -9,13 +10,24 @@ import {
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import Button from "./Button";
+import { ButtonGroup } from "@nextui-org/button";
+import TooltipButton from "./TooltipButton";
 
-const programmingLanguages = ["JavaScript", "TypeScript", "Java", "Python"];
+const availableProgrammingLanguages = [
+  "JavaScript",
+  "TypeScript",
+  "Java",
+  "Python",
+];
 
 interface NewRoomModalProps {
   isOpen: boolean;
   onOpenChange: () => void;
-  onCreateRoom: (roomName: string, programmingLanguage: string) => void;
+  onCreateRoom: (
+    roomName: string,
+    programmingLanguage: string,
+    privacyType: "private" | "public"
+  ) => void;
 }
 
 const NewRoomModal: React.FC<NewRoomModalProps> = ({
@@ -23,15 +35,22 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
   onOpenChange,
   onCreateRoom,
 }) => {
-  const [roomName, setRoomName] = useState("");
-  const [programmingLanguage, setProgrammingLanguage] = useState("JavaScript");
-  // const [privacyType, setPrivacyType] = useState<"invite-only" | "public">(
-  //   "public"
-  // );
+  const [roomName, setRoomName] = useState("Unnamed Room");
+  const [programmingLanguages, setProgrammingLanguages] = useState<any>(
+    new Set(["JavaScript"])
+  );
+  const [privacyType, setPrivacyType] = useState<"private" | "public">(
+    "public"
+  );
 
   const handleCreateRoom = () => {
     if (roomName) {
-      onCreateRoom(roomName, programmingLanguage);
+      const selectedProgrammingLanguage = Array.from(programmingLanguages)[0];
+      onCreateRoom(
+        roomName,
+        selectedProgrammingLanguage as string,
+        privacyType
+      );
     }
   };
 
@@ -40,7 +59,9 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
       isOpen={isOpen}
       onOpenChange={() => {
         onOpenChange();
-        setRoomName("");
+        setRoomName("Unnamed Room");
+        setProgrammingLanguages(new Set(["JavaScript"]));
+        setPrivacyType("public");
       }}
       classNames={{
         base: "bg-zinc-900 text-white",
@@ -50,7 +71,7 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
       <ModalContent>
         <ModalHeader>Create Room</ModalHeader>
         <ModalBody>
-          <div className="w-full flex flex-col gap-4">
+          <div className="w-full flex flex-col gap-4 justify-center">
             <Input
               type="text"
               value={roomName}
@@ -69,7 +90,10 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
                   "text-zinc-400 group-data-[filled-within=true]:text-zinc-400 placeholder:text-zinc-400",
               }}
             />
+
             <Select
+              selectedKeys={programmingLanguages}
+              onSelectionChange={setProgrammingLanguages}
               required
               selectionMode="single"
               label="Select programming language"
@@ -81,10 +105,9 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
                 popoverContent: "bg-zinc-800",
               }}
             >
-              {programmingLanguages.map((language, index) => (
+              {availableProgrammingLanguages.map(language => (
                 <SelectItem
-                  key={index}
-                  onClick={() => setProgrammingLanguage(language)}
+                  key={language}
                   classNames={{
                     base: "data-[hover=true]:bg-zinc-700 data-[hover=true]:text-white data-[selectable=true]:focus:bg-zinc-700 data-[selectable=true]:focus:text-white",
                   }}
@@ -93,6 +116,26 @@ const NewRoomModal: React.FC<NewRoomModalProps> = ({
                 </SelectItem>
               ))}
             </Select>
+            <ButtonGroup>
+              <TooltipButton
+                tooltip="Code in peace and quiet"
+                onClick={() => setPrivacyType("private")}
+                className={`${
+                  privacyType === "private" ? "bg-red-900" : "bg-zinc-800"
+                }`}
+              >
+                PRIVATE
+              </TooltipButton>
+              <TooltipButton
+                tooltip="Anyone with the link can join"
+                onClick={() => setPrivacyType("public")}
+                className={`${
+                  privacyType === "public" ? "bg-red-900" : "bg-zinc-800"
+                }`}
+              >
+                PUBLIC
+              </TooltipButton>
+            </ButtonGroup>
           </div>
         </ModalBody>
         <ModalFooter>
