@@ -12,6 +12,7 @@ export default {
     extend: {
       fontFamily: {
         playfair: ["Playfair Display", "serif"],
+        firaCode: ["Fira Code", "monospace"],
       },
     },
   },

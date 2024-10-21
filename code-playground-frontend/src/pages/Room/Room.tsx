@@ -12,6 +12,7 @@ import { Play, Link } from "lucide-react";
 import { debounce } from "lodash";
 import TooltipButton from "../../components/TooltipButton";
 import Participants from "../../components/Participants";
+import OutputConsole from "../../components/OutputConsole";
 
 const Room: React.FC = () => {
   const { id: roomId } = useParams<{ id: string }>();
@@ -22,6 +23,7 @@ const Room: React.FC = () => {
   const [isEditorReady, setIsEditorReady] = useState(false);
 
   // Create a debounced function to persist data to the server
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdateCodeContent = useCallback(
     debounce((content: string) => {
       if (roomId) {
@@ -53,7 +55,8 @@ const Room: React.FC = () => {
   }, [roomId, isEditorReady, debouncedUpdateCodeContent]);
 
   const handleEditorDidMount = useCallback(
-    (editor: editor.IStandaloneCodeEditor, monaco) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (editor: editor.IStandaloneCodeEditor, monaco: any) => {
       editorRef.current = editor;
       monaco.editor.defineTheme("customTheme", editorTheme);
       monaco.editor.setTheme("customTheme");
@@ -140,8 +143,9 @@ const Room: React.FC = () => {
             />
           </div>
         </div>
-        <div className="flex-1 flex items-stretch justify-between ">
+        <div className="flex-1 flex flex-col gap-5 items-stretch justify-between ">
           <Participants roomId={roomId} />
+          <OutputConsole roomId={roomId} />
         </div>
       </div>
     </div>

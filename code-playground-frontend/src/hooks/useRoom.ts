@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useCallback, useState } from "react";
+import { roomContext } from "../contexts/roomContext";
 import { Room as RoomType } from "../types/types";
 import { fetchRoom } from "../services/api";
 import { createSocketConnection } from "../services/socket";
@@ -7,8 +8,10 @@ import { useNavigate } from "react-router-dom";
 import { Socket } from "socket.io-client";
 
 export const useRoom = (roomId: string) => {
-  const [room, setRoom] = useState<RoomType | null>(null);
+  const { room, setRoom } = useContext(roomContext);
   const { token, username } = useAuth();
+  const [consoleEntries, setConsoleEntries] = useState<string[]>([]);
+
   const navigate = useNavigate();
   const socketRef = useRef<Socket | null>(null);
 
@@ -27,6 +30,12 @@ export const useRoom = (roomId: string) => {
     }
   }, [roomId]);
 
+  const onConsoleUpdate = useCallback((update: { stdout: string }) => {
+    setConsoleEntries(prevEntries => {
+      return [update.stdout, ...prevEntries];
+    });
+  }, []);
+
   useEffect(() => {
     if (!roomId || !token) return;
 
@@ -44,19 +53,24 @@ export const useRoom = (roomId: string) => {
       }
     };
 
-    socketRef.current = createSocketConnection(
-      roomId,
-      token,
-      setRoom,
-      onParticipantRemoved
-    );
+    if (!socketRef.current) {
+      console.log("Creating new socket connection");
+      socketRef.current = createSocketConnection(
+        roomId,
+        token,
+        setRoom,
+        onConsoleUpdate,
+        onParticipantRemoved
+      );
+    }
 
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
+        socketRef.current = null;
       }
     };
-  }, [roomId, token, navigate]);
+  }, [roomId, token, navigate, onConsoleUpdate]);
 
   const removeParticipant = (participantId: string) => {
     socketRef.current?.emit("remove_participant", {
@@ -86,5 +100,7 @@ export const useRoom = (roomId: string) => {
     lockRoom,
     updateCodeContent,
     runCode,
+    consoleEntries,
+    setConsoleEntries,
   };
 };

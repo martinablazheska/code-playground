@@ -7,6 +7,7 @@ export const createSocketConnection = (
   roomId: string,
   token: string,
   onRoomUpdate: (room: Room) => void,
+  onConsoleUpdate: (update: { stdout: string }) => void,
   onParticipantRemoved: (updatedRoom: Room) => void
 ): Socket => {
   const socket = io(SOCKET_URL, {
@@ -22,6 +23,10 @@ export const createSocketConnection = (
   socket.on("room_locked", (updatedRoom: Room) => {
     onRoomUpdate(updatedRoom);
   });
+  socket.on("code_output", (codeOutput: { stdout: string }) => {
+    onConsoleUpdate(codeOutput);
+  });
+
   socket.emit("join", { roomId, token });
 
   return socket;

@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useMemo } from "react";
 import { Room } from "../types/types";
 
 interface RoomContextType {
@@ -16,11 +16,9 @@ const RoomContextProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [room, setRoom] = useState<Room | null>(null);
 
-  return (
-    <roomContext.Provider value={{ room, setRoom }}>
-      {children}
-    </roomContext.Provider>
-  );
+  const value = useMemo(() => ({ room, setRoom }), [room]);
+
+  return <roomContext.Provider value={value}>{children}</roomContext.Provider>;
 };
 
 export default RoomContextProvider;
