@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { RoomService } from "../services/roomService";
+import { RoomService } from "@/services/roomService";
 import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
   SUPPORTED_LANGUAGES,
-} from "../types/programmingLanguages";
+} from "@/types/programmingLanguages";
 
 const roomService = new RoomService();
 

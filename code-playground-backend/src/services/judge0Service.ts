@@ -27,7 +27,6 @@ export class Judge0Service {
       const response = await axios.request(options);
       return response.data.token;
     } catch (error) {
-      console.error("Error submitting code to Judge0:", error);
       throw new Error("Failed to submit code");
     }
   }
@@ -50,13 +49,11 @@ export class Judge0Service {
       const response = await axios.request(options);
       return response.data;
     } catch (error) {
-      console.error("Error getting submission result from Judge0:", error);
       throw new Error("Failed to get submission result");
     }
   }
 
   private getLanguageId(language: string): number {
-    // Map supported languages to Judge0 language IDs
     const languageMap: { [key: string]: number } = {
       JavaScript: 63,
       TypeScript: 74,

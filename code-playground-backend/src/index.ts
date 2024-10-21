@@ -3,10 +3,10 @@ import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
 import { Server as SocketIOServer } from "socket.io";
-import roomRoutes from "./routes/roomRoutes";
-import authRoutes from "./routes/authRoutes";
-import { setupSocketHandlers } from "./socket/socketHandlers";
-import { setupYjsWebsocketServer } from "./socket/yjs";
+import roomRoutes from "@/routes/roomRoutes";
+import authRoutes from "@/routes/authRoutes";
+import { setupSocketHandlers } from "@/socket/socketHandlers";
+import { setupYjsWebsocketServer } from "@/socket/yjs";
 
 dotenv.config();
 

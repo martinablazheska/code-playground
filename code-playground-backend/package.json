@@ -4,10 +4,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsc && node dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "start": "node -r tsconfig-paths/register dist/index.js",
+    "dev": "nodemon -r tsconfig-paths/register src/index.ts",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +23,9 @@
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.12",
     "drizzle-kit": "^0.25.0",
+    "eslint-plugin-no-relative-import-paths": "^1.5.5",
     "nodemon": "^3.1.7",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {

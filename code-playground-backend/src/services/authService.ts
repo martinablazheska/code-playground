@@ -1,8 +1,8 @@
-import { db } from "../db";
-import { users } from "../db/schema";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm/expressions";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -44,7 +44,7 @@ export class AuthService {
     return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1d" });
   }
 
-  verifyToken(token: string) {
+  getUserId(token: string) {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
       return decoded.userId;

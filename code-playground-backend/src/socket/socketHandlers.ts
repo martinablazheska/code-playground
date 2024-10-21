@@ -1,6 +1,6 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
-import { RoomService } from "../services/roomService";
-import { AuthService } from "../services/authService";
+import { RoomService } from "@/services/roomService";
+import { AuthService } from "@/services/authService";
 
 const roomService = new RoomService();
 const authService = new AuthService();
@@ -14,13 +14,8 @@ export const setupSocketHandlers = (io: SocketIOServer) => {
     let currentRoomId: string | null = null;
 
     socket.on("join", async ({ roomId, token }) => {
-      console.log("Received join event with:", {
-        roomId,
-        token: token.substring(0, 10) + "...",
-      }); // partial token for debugging
-
       try {
-        userId = authService.verifyToken(token);
+        userId = authService.getUserId(token);
         const room = await roomService.joinRoom(roomId, userId);
         currentRoomId = roomId;
 
@@ -84,10 +79,7 @@ async function handleUserLeavingRoom(
       socket.leave(roomId);
     }
 
-    // Notify other users in the room
     socket.to(roomId).emit("user:left", { userId, roomId });
-
-    // Send updated room information
     io.to(roomId).emit("room:update", updatedRoom);
     console.log(`User ${userId} left room ${roomId}`);
   } catch (error) {

@@ -2,12 +2,12 @@ import { db } from "../db";
 import { rooms, users, roomParticipants } from "../db/schema";
 import { v4 as uuidv4 } from "uuid";
 import { eq, and, ne } from "drizzle-orm/expressions";
-import { User, Room, CodeData } from "../types/types";
+import { User, Room, CodeData } from "@/types/types";
 import {
   ProgrammingLanguage,
   DEFAULT_LANGUAGE,
-} from "../types/programmingLanguages";
-import { Judge0Service } from "../services/judge0Service";
+} from "@/types/programmingLanguages";
+import { Judge0Service } from "@/services/judge0Service";
 
 export class RoomService {
   private judge0Service: Judge0Service;
@@ -22,6 +22,7 @@ export class RoomService {
     programmingLanguage: ProgrammingLanguage = DEFAULT_LANGUAGE,
     privacyType: "private" | "public" = "public"
   ): Promise<Room> {
+    // Generate random room id
     const roomId = uuidv4();
 
     const initialCodeData: CodeData = {
@@ -30,6 +31,7 @@ export class RoomService {
       lastEditedAt: null,
     };
 
+    // Insert room in rooms table
     await db.insert(rooms).values({
       id: roomId,
       name,
@@ -39,7 +41,10 @@ export class RoomService {
       privacyType,
     });
 
+    // Get owner data
     const owner = await this.getUserById(userId);
+
+    // Return room object
     return {
       roomId,
       name,
@@ -71,6 +76,8 @@ export class RoomService {
     if (!room) {
       throw new Error("Room not found");
     }
+
+    // Check the room privacy type
 
     if (room.privacyType === "private" && room.ownerId !== userId) {
       throw new Error("This room is private");
@@ -106,6 +113,7 @@ export class RoomService {
   }
 
   async getRoom(roomId: string): Promise<Room> {
+    // Get rooom from database
     const roomResult = await db
       .select({
         roomId: rooms.id,
@@ -125,6 +133,7 @@ export class RoomService {
 
     const room = roomResult[0];
 
+    // Get participants
     const participants = await db
       .select({
         id: users.id,
@@ -135,6 +144,7 @@ export class RoomService {
       .where(eq(roomParticipants.roomId, roomId))
       .execute();
 
+    // Get owner user data
     const owner = await this.getUserById(room.ownerId);
 
     if (!owner) {
@@ -171,6 +181,7 @@ export class RoomService {
   }
 
   async updateRoomCodeData(roomId: string, content: string): Promise<void> {
+    // Get current room from database
     const [currentRoom] = await db
       .select({
         codeData: rooms.codeData,
@@ -185,6 +196,7 @@ export class RoomService {
 
     const currentCodeData = currentRoom.codeData as CodeData;
 
+    // Update room with code data
     await db
       .update(rooms)
       .set({
@@ -201,6 +213,7 @@ export class RoomService {
     roomId: string,
     participantUsername: string
   ): Promise<Room> {
+    // Get current room from database
     const [room] = await db
       .select()
       .from(rooms)
@@ -256,6 +269,7 @@ export class RoomService {
   }
 
   async setRoomPrivate(roomId: string): Promise<Room> {
+    // Get current room from database
     const [room] = await db
       .select()
       .from(rooms)
@@ -277,9 +291,11 @@ export class RoomService {
   }
 
   async runCode(roomId: string): Promise<any> {
+    // Get current room from database
     const room = await this.getRoom(roomId);
     const { content } = room.codeData;
 
+    // Submit the code for execution and receive submission token
     const submissionToken = await this.judge0Service.submitCode(
       room.programmingLanguage,
       content
@@ -288,9 +304,11 @@ export class RoomService {
     // Wait for a short time to allow the code to be processed
     await new Promise(resolve => setTimeout(resolve, 2000));
 
+    // Submit submission token to receive code output
     const result = await this.judge0Service.getSubmissionResult(
       submissionToken
     );
+
     return result;
   }
 }

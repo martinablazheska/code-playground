@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "../services/authService";
+import { AuthService } from "@/services/authService";
 
 declare global {
   namespace Express {
@@ -24,7 +24,7 @@ export const authenticate = (
   }
 
   try {
-    const userId = authService.verifyToken(token);
+    const userId = authService.getUserId(token);
     req.userId = userId;
     next();
   } catch (error) {
